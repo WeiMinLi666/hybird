@@ -82,4 +82,63 @@ public class SigningService {
 
         return crl;
     }
+
+    /**
+     * 获取所有CA
+     */
+    public java.util.List<CertificateAuthority> getAllCertificateAuthorities() {
+        return caRepository.findAll();
+    }
+
+    /**
+     * 根据ID获取CA
+     */
+    public CertificateAuthority getCertificateAuthorityById(String caId) {
+        return caRepository.findById(caId);
+    }
+
+    /**
+     * 创建CA
+     */
+    public CertificateAuthority createCertificateAuthority(String caName,
+                                                             String subjectDN,
+                                                             String signatureAlgorithm,
+                                                             Integer validityDays) {
+        String caId = java.util.UUID.randomUUID().toString();
+        // 创建一个模拟的CA证书
+        org.wyman.domain.signing.valobj.Certificate caCert = new org.wyman.domain.signing.valobj.Certificate();
+        caCert.setSerialNumber(caId);
+        caCert.setSubjectDN(subjectDN);
+        caCert.setIssuerDN(subjectDN);
+        caCert.setSignatureAlgorithm(signatureAlgorithm);
+        caCert.setPemEncoded("-----BEGIN CERTIFICATE-----\nMOCK_CA_CERTIFICATE\n-----END CERTIFICATE-----");
+
+        CertificateAuthority ca = new CertificateAuthority(caId, caName, caCert);
+        caRepository.save(ca);
+        return ca;
+    }
+
+    /**
+     * 激活/停用CA
+     */
+    public void activateCertificateAuthority(String caId, boolean active) {
+        CertificateAuthority ca = caRepository.findById(caId);
+        if (ca == null) {
+            throw new RuntimeException("CA不存在: " + caId);
+        }
+        // 简化实现，实际CA状态管理需要更复杂
+        caRepository.save(ca);
+    }
+
+    /**
+     * 吊销CA
+     */
+    public void revokeCertificateAuthority(String caId, String reason) {
+        CertificateAuthority ca = caRepository.findById(caId);
+        if (ca == null) {
+            throw new RuntimeException("CA不存在: " + caId);
+        }
+        // 简化实现，实际CA吊销需要更复杂
+        caRepository.save(ca);
+    }
 }

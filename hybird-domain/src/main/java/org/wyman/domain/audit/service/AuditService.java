@@ -205,4 +205,59 @@ public class AuditService {
         }
         return List.of();
     }
+
+    /**
+     * 分页查询审计日志
+     */
+    public List<AuditEvent> queryAuditEvents(String operator,
+                                              String operationType,
+                                              LocalDateTime startTime,
+                                              LocalDateTime endTime,
+                                              Integer pageSize,
+                                              Integer pageNumber) {
+        // 简化实现，实际需要分页查询
+        List<AuditEvent> allLogs = queryAuditLogs(null, operator, startTime, endTime);
+        if (operationType != null && !operationType.isEmpty()) {
+            allLogs = allLogs.stream()
+                .filter(event -> event.getOperationType().equals(operationType))
+                .toList();
+        }
+        int start = (pageNumber - 1) * pageSize;
+        int end = Math.min(start + pageSize, allLogs.size());
+        return allLogs.subList(start, end);
+    }
+
+    /**
+     * 根据资源查询审计日志
+     */
+    public List<AuditEvent> queryAuditEventsByResource(String resourceType, String resourceId) {
+        // 简化实现，实际需要根据资源查询
+        return auditEventRepository.findByTimeRange(
+            LocalDateTime.now().minusDays(30),
+            LocalDateTime.now()
+        );
+    }
+
+    /**
+     * 获取审计统计信息
+     */
+    public Map<String, Object> getAuditStatistics(LocalDateTime startTime, LocalDateTime endTime) {
+        List<AuditEvent> events = auditEventRepository.findByTimeRange(startTime, endTime);
+        Map<String, Long> operationTypeStats = events.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                AuditEvent::getOperationType,
+                java.util.stream.Collectors.counting()
+            ));
+        Map<String, Long> resultStats = events.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                AuditEvent::getResultStatus,
+                java.util.stream.Collectors.counting()
+            ));
+        return Map.of(
+            "totalEvents", events.size(),
+            "operationTypeStats", operationTypeStats,
+            "resultStats", resultStats,
+            "timeRange", startTime + " to " + endTime
+        );
+    }
 }

@@ -1,1 +1,0 @@
-package org.wyman.domain.xxx.service;

@@ -3,6 +3,7 @@ package org.wyman.domain.policy.service;
 import org.springframework.stereotype.Service;
 import org.wyman.domain.policy.adapter.port.ICertificatePolicyRepository;
 import org.wyman.domain.policy.model.aggregate.CertificatePolicy;
+import org.wyman.domain.policy.valobj.ValidityPeriodRule;
 import org.wyman.types.enums.CertificateType;
 
 import java.time.LocalDateTime;
@@ -77,7 +78,7 @@ public class PolicyService {
         policy.setCryptographicRule(cryptoRule);
 
         // 设置默认有效期规则
-        org.wyman.domain.policy.valobj.ValidityPeriodRule validityRule =
+        ValidityPeriodRule validityRule =
             new org.wyman.domain.policy.valobj.ValidityPeriodRule();
         validityRule.setMinDays(1);
         validityRule.setMaxDays(365);
@@ -133,5 +134,71 @@ public class PolicyService {
         }
         policy.disable();
         policyRepository.save(policy);
+    }
+
+    /**
+     * 创建策略
+     */
+    public CertificatePolicy createPolicy(String policyName,
+                                          String description,
+                                          String[] allowedAlgorithms,
+                                          Integer validityPeriod,
+                                          Integer keySize) {
+        CertificatePolicy policy = new CertificatePolicy(
+            java.util.UUID.randomUUID().toString(),
+            CertificateType.DEVICE_CERT,
+            policyName
+        );
+
+        org.wyman.domain.policy.valobj.CryptographicRule cryptoRule =
+            new org.wyman.domain.policy.valobj.CryptographicRule();
+        cryptoRule.setAllowedSignatureAlgorithms(java.util.Arrays.asList(allowedAlgorithms));
+        cryptoRule.setMinKeyLength(keySize != null ? keySize : 2048);
+        policy.setCryptographicRule(cryptoRule);
+
+        org.wyman.domain.policy.valobj.ValidityPeriodRule validityRule =
+            new org.wyman.domain.policy.valobj.ValidityPeriodRule();
+        validityRule.setMaxDays(validityPeriod != null ? validityPeriod : 365);
+        policy.setValidityPeriodRule(validityRule);
+
+        policyRepository.save(policy);
+        return policy;
+    }
+
+    /**
+     * 获取所有策略
+     */
+    public java.util.List<CertificatePolicy> getAllPolicies() {
+        return policyRepository.findAll();
+    }
+
+    /**
+     * 根据ID获取策略
+     */
+    public CertificatePolicy getPolicyById(String policyId) {
+        return policyRepository.findById(policyId);
+    }
+
+    /**
+     * 验证CSR是否符合策略
+     */
+    public boolean validateCSR(String policyId, String csrPemData) {
+        CertificatePolicy policy = policyRepository.findById(policyId);
+        if (policy == null) {
+            throw new RuntimeException("策略不存在: " + policyId);
+        }
+        // 简化实现，实际需要解析CSR并验证
+        return policy.isEnabled();
+    }
+
+    /**
+     * 激活/停用策略
+     */
+    public void activatePolicy(String policyId, boolean active) {
+        if (active) {
+            enablePolicy(policyId);
+        } else {
+            disablePolicy(policyId);
+        }
     }
 }

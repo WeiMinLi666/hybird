@@ -8,14 +8,12 @@ import org.wyman.domain.authentication.model.aggregate.AuthenticationRequest;
 import org.wyman.domain.authentication.model.entity.Applicant;
 import org.wyman.domain.authentication.valobj.CertificateSigningRequest;
 import org.wyman.domain.authentication.service.AuthenticationService;
-import org.wyman.domain.lifecycle.adapter.port.ICertificateRepository;
+import org.wyman.domain.chain.service.CertificateChainService;
 import org.wyman.domain.lifecycle.model.aggregate.Certificate;
 import org.wyman.domain.lifecycle.service.CertificateLifecycleService;
 import org.wyman.domain.policy.service.PolicyService;
 import org.wyman.domain.signing.service.SigningService;
 import org.wyman.domain.status.service.RevocationStatusService;
-import org.wyman.infrastructure.dao.mapper.CertificateChainMapper;
-import org.wyman.infrastructure.dao.po.CertificateChainPO;
 import org.wyman.types.enums.CertificateType;
 import org.wyman.types.enums.RevocationReason;
 
@@ -37,23 +35,20 @@ public class CertificateController {
     private final SigningService signingService;
     private final CertificateLifecycleService lifecycleService;
     private final RevocationStatusService revocationStatusService;
-    private final ICertificateRepository certificateRepository;
-    private final CertificateChainMapper certificateChainMapper;
+    private final CertificateChainService certificateChainService;
 
     public CertificateController(AuthenticationService authenticationService,
                                  PolicyService policyService,
                                  SigningService signingService,
                                  CertificateLifecycleService lifecycleService,
                                  RevocationStatusService revocationStatusService,
-                                 ICertificateRepository certificateRepository,
-                                 CertificateChainMapper certificateChainMapper) {
+                                 CertificateChainService certificateChainService) {
         this.authenticationService = authenticationService;
         this.policyService = policyService;
         this.signingService = signingService;
         this.lifecycleService = lifecycleService;
         this.revocationStatusService = revocationStatusService;
-        this.certificateRepository = certificateRepository;
-        this.certificateChainMapper = certificateChainMapper;
+        this.certificateChainService = certificateChainService;
     }
 
     /**
@@ -119,7 +114,7 @@ public class CertificateController {
             certificate.setIssuanceRequestId(authRequest.getRequestId());
             certificate.activate();
 
-            certificateRepository.save(certificate);
+            lifecycleService.saveCertificate(certificate);
 
             // 7. 构建响应
             CertificateIssuanceResponse response = new CertificateIssuanceResponse();
@@ -169,7 +164,7 @@ public class CertificateController {
     @GetMapping("/query")
     public Response<CertificateQueryResponse> queryCertificate(@RequestParam String serialNumber) {
         try {
-            Certificate certificate = certificateRepository.findBySerialNumber(serialNumber);
+            Certificate certificate = lifecycleService.getCertificateBySerialNumber(serialNumber);
             if (certificate == null) {
                 return Response.fail("证书不存在");
             }
@@ -198,40 +193,20 @@ public class CertificateController {
     @GetMapping("/chain")
     public Response<CertificateChainResponse> queryCertificateChain(@RequestParam String serialNumber) {
         try {
-            Certificate certificate = certificateRepository.findBySerialNumber(serialNumber);
-            if (certificate == null) {
-                return Response.fail("证书不存在");
+            var chainInfoList = certificateChainService.getCertificateChain(serialNumber);
+            if (chainInfoList.isEmpty()) {
+                return Response.fail("证书不存在或证书链为空");
             }
 
-            List<CertificateChainPO> chainList = certificateChainMapper
-                .selectByCertificateSerialNumber(serialNumber);
-
             List<CertificateChainResponse.CertificateInfo> chain = new ArrayList<>();
-
-            // 添加当前证书
-            chain.add(new CertificateChainResponse.CertificateInfo(
-                certificate.getSerialNumber(),
-                certificate.getSubjectDN(),
-                certificate.getIssuerDN(),
-                certificate.getPemEncoded(),
-                0
-            ));
-
-            // 添加父证书
-            for (CertificateChainPO chainPO : chainList) {
-                if (chainPO.getParentSerialNumber() != null) {
-                    Certificate parentCert = certificateRepository
-                        .findBySerialNumber(chainPO.getParentSerialNumber());
-                    if (parentCert != null) {
-                        chain.add(new CertificateChainResponse.CertificateInfo(
-                            parentCert.getSerialNumber(),
-                            parentCert.getSubjectDN(),
-                            parentCert.getIssuerDN(),
-                            parentCert.getPemEncoded(),
-                            chainPO.getLevel()
-                        ));
-                    }
-                }
+            for (var chainInfo : chainInfoList) {
+                chain.add(new CertificateChainResponse.CertificateInfo(
+                    chainInfo.getSerialNumber(),
+                    chainInfo.getSubjectDN(),
+                    chainInfo.getIssuerDN(),
+                    chainInfo.getCertificatePem(),
+                    chainInfo.getLevel()
+                ));
             }
 
             CertificateChainResponse response = new CertificateChainResponse();
@@ -252,8 +227,8 @@ public class CertificateController {
     public Response<List<CertificateQueryResponse>> queryDeviceCertificates(
             @RequestParam String applicantId) {
         try {
-            List<Certificate> certificates = certificateRepository
-                .findByApplicantId(applicantId);
+            List<Certificate> certificates = lifecycleService
+                .getCertificatesByApplicantId(applicantId);
 
             List<CertificateQueryResponse> responses = certificates.stream()
                 .map(cert -> {
@@ -305,14 +280,13 @@ public class CertificateController {
     public Response<CertificateIssuanceResponse> renewCertificate(@RequestBody CertificateRenewalRequest request) {
         try {
             // 1. 查询原证书
-            Certificate oldCert = certificateRepository.findBySerialNumber(request.getOldSerialNumber());
+            Certificate oldCert = lifecycleService.getCertificateBySerialNumber(request.getOldSerialNumber());
             if (oldCert == null) {
                 return Response.fail("原证书不存在");
             }
 
             // 2. 标记原证书为待续期
-            oldCert.markForRenewal();
-            certificateRepository.save(oldCert);
+            lifecycleService.markCertificateForRenewal(request.getOldSerialNumber());
 
             // 3. 创建新CSR
             CertificateSigningRequest csr = new CertificateSigningRequest();
@@ -344,7 +318,7 @@ public class CertificateController {
             certificate.setPemEncoded(newCert.getPemEncoded());
             certificate.activate();
 
-            certificateRepository.save(certificate);
+            lifecycleService.saveCertificate(certificate);
 
             // 6. 构建响应
             CertificateIssuanceResponse response = new CertificateIssuanceResponse();

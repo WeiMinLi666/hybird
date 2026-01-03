@@ -115,4 +115,37 @@ public class CertificateLifecycleService {
         Certificate certificate = certificateRepository.findBySerialNumber(serialNumber);
         return certificate != null && certificate.isValid();
     }
+
+    /**
+     * 根据申请者ID查询证书
+     */
+    public List<Certificate> getCertificatesByApplicantId(String applicantId) {
+        return certificateRepository.findByApplicantId(applicantId);
+    }
+
+    /**
+     * 根据序列号查询证书
+     */
+    public Certificate getCertificateBySerialNumber(String serialNumber) {
+        return certificateRepository.findBySerialNumber(serialNumber);
+    }
+
+    /**
+     * 保存证书
+     */
+    public void saveCertificate(Certificate certificate) {
+        certificateRepository.save(certificate);
+    }
+
+    /**
+     * 为续期标记证书
+     */
+    public void markCertificateForRenewal(String serialNumber) {
+        Certificate certificate = certificateRepository.findBySerialNumber(serialNumber);
+        if (certificate == null) {
+            throw new RuntimeException("证书不存在: " + serialNumber);
+        }
+        certificate.markForRenewal();
+        certificateRepository.save(certificate);
+    }
 }

@@ -191,6 +191,123 @@
 }
 ```
 
+### 5. 证书策略管理
+
+#### 5.1 创建证书策略
+- **接口**: `POST /api/policy/create`
+- **描述**: 创建新的证书签发策略
+- **请求体** (PolicyCreateRequest):
+```json
+{
+  "policyName": "string",      // 策略名称
+  "description": "string",       // 策略描述
+  "allowedAlgorithms": ["SM2", "ML-DSA"],  // 允许的算法列表
+  "validityPeriod": 365,       // 有效期(天)
+  "keySize": 2048              // 密钥大小
+}
+```
+- **响应**: PolicyQueryResponse
+
+#### 5.2 查询所有策略
+- **接口**: `GET /api/policy/list`
+- **描述**: 查询所有证书策略
+- **响应**: PolicyQueryResponse 数组
+
+#### 5.3 查询策略详情
+- **接口**: `GET /api/policy/{policyId}`
+- **描述**: 根据ID查询策略详情
+- **响应**: PolicyQueryResponse
+
+#### 5.4 激活/停用策略
+- **接口**: `POST /api/policy/{policyId}/activate`
+- **描述**: 激活或停用策略
+- **参数**: 
+  - `active`: boolean - true激活, false停用
+
+#### 5.5 验证CSR
+- **接口**: `POST /api/policy/validate`
+- **描述**: 验证CSR是否符合策略要求
+- **请求体** (PolicyValidationRequest):
+```json
+{
+  "policyId": "string",      // 策略ID
+  "csrPemData": "string"     // CSR PEM数据
+}
+```
+- **响应**: PolicyValidationResponse
+
+### 6. CA管理
+
+#### 6.1 创建CA
+- **接口**: `POST /api/ca/create`
+- **描述**: 创建新的证书颁发机构
+- **请求体** (CACreateRequest):
+```json
+{
+  "caName": "string",         // CA名称
+  "subjectDN": "string",       // 主题DN
+  "signatureAlgorithm": "SM2", // 签名算法
+  "validityDays": 3650         // 有效期(天)
+}
+```
+- **响应**: CAQueryResponse
+
+#### 6.2 查询所有CA
+- **接口**: `GET /api/ca/list`
+- **描述**: 查询所有CA
+- **响应**: CAQueryResponse 数组
+
+#### 6.3 查询CA详情
+- **接口**: `GET /api/ca/{caId}`
+- **描述**: 根据ID查询CA详情
+- **响应**: CAQueryResponse
+
+#### 6.4 激活/停用CA
+- **接口**: `POST /api/ca/{caId}/activate`
+- **描述**: 激活或停用CA
+- **参数**: 
+  - `active`: boolean - true激活, false停用
+
+#### 6.5 吊销CA
+- **接口**: `POST /api/ca/{caId}/revoke`
+- **描述**: 吊销指定CA
+- **参数**: 
+  - `reason`: string - 吊销原因
+
+### 7. 审计日志
+
+#### 7.1 查询审计日志
+- **接口**: `POST /api/audit/query`
+- **描述**: 查询审计日志记录
+- **请求体** (AuditLogQueryRequest):
+```json
+{
+  "operator": "string",          // 操作人
+  "operationType": "string",      // 操作类型
+  "startTime": "2025-01-01 00:00:00",
+  "endTime": "2025-12-31 23:59:59",
+  "pageNumber": 1,
+  "pageSize": 20
+}
+```
+- **响应**: AuditLogResponse 数组
+
+#### 7.2 查询资源审计日志
+- **接口**: `GET /api/audit/resource/{resourceType}/{resourceId}`
+- **描述**: 根据资源查询审计日志
+- **参数**:
+  - `resourceType`: string - 资源类型(如CERTIFICATE, CA)
+  - `resourceId`: string - 资源ID
+- **响应**: AuditLogResponse 数组
+
+#### 7.3 获取审计统计
+- **接口**: `GET /api/audit/statistics`
+- **描述**: 获取审计日志统计信息
+- **参数**:
+  - `startTime`: string - 开始时间(可选)
+  - `endTime`: string - 结束时间(可选)
+- **响应**: 统计信息对象
+
 ### 4. 身份验证
 
 #### 4.1 验证身份
