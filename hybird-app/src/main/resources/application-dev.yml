@@ -35,6 +35,21 @@ spring:
 #  mapper-locations: classpath:/mybatis/mapper/*.xml
 #  config-location:  classpath:/mybatis/config/mybatis-config.xml
 
+# Redis配置 - TODO: 修改为实际的Redis连接信息
+#spring:
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+#      password:
+#      database: 0
+#      lettuce:
+#        pool:
+#          max-active: 8
+#          max-idle: 8
+#          min-idle: 0
+#          max-wait: -1ms
+
 # 日志
 logging:
   level:

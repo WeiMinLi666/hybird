@@ -19,4 +19,25 @@ public class Response<T> implements Serializable {
     private String info;
     private T data;
 
+    public static <T> Response<T> success() {
+        return Response.<T>builder()
+            .code("0000")
+            .info("success")
+            .build();
+    }
+
+    public static <T> Response<T> success(T data) {
+        return Response.<T>builder()
+            .code("0000")
+            .info("success")
+            .data(data)
+            .build();
+    }
+
+    public static <T> Response<T> fail(String message) {
+        return Response.<T>builder()
+            .code("9999")
+            .info(message)
+            .build();
+    }
 }
