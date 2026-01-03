@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wyman.infrastructure.dao.mapper.AuthenticationRequestMapper">
+
+    <resultMap id="BaseResultMap" type="org.wyman.infrastructure.dao.po.AuthenticationRequestPO">
+        <id column="request_id" property="requestId" jdbcType="VARCHAR"/>
+        <result column="applicant_id" property="applicantId" jdbcType="VARCHAR"/>
+        <result column="applicant_name" property="applicantName" jdbcType="VARCHAR"/>
+        <result column="applicant_email" property="applicantEmail" jdbcType="VARCHAR"/>
+        <result column="csr_content" property="csrContent" jdbcType="LONGVARCHAR"/>
+        <result column="csr_subject_dn" property="csrSubjectDn" jdbcType="VARCHAR"/>
+        <result column="public_key_algorithm" property="publicKeyAlgorithm" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="failure_reason" property="failureReason" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        request_id, applicant_id, applicant_name, applicant_email, csr_content,
+        csr_subject_dn, public_key_algorithm, status, failure_reason, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="org.wyman.infrastructure.dao.po.AuthenticationRequestPO">
+        INSERT INTO authentication_request (
+            request_id, applicant_id, applicant_name, applicant_email, csr_content,
+            csr_subject_dn, public_key_algorithm, status, failure_reason, create_time, update_time
+        ) VALUES (
+            #{requestId,jdbcType=VARCHAR}, #{applicantId,jdbcType=VARCHAR}, #{applicantName,jdbcType=VARCHAR},
+            #{applicantEmail,jdbcType=VARCHAR}, #{csrContent,jdbcType=LONGVARCHAR}, #{csrSubjectDn,jdbcType=VARCHAR},
+            #{publicKeyAlgorithm,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{failureReason,jdbcType=VARCHAR},
+            #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.wyman.infrastructure.dao.po.AuthenticationRequestPO">
+        UPDATE authentication_request
+        SET status = #{status,jdbcType=VARCHAR},
+            failure_reason = #{failureReason,jdbcType=VARCHAR},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        WHERE request_id = #{requestId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM authentication_request
+        WHERE request_id = #{requestId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByApplicantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM authentication_request
+        WHERE applicant_id = #{applicantId,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

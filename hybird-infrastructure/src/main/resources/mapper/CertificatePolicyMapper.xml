@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wyman.infrastructure.dao.mapper.CertificatePolicyMapper">
+
+    <resultMap id="BaseResultMap" type="org.wyman.infrastructure.dao.po.CertificatePolicyPO">
+        <id column="policy_id" property="policyId" jdbcType="VARCHAR"/>
+        <result column="certificate_type" property="certificateType" jdbcType="VARCHAR"/>
+        <result column="policy_name" property="policyName" jdbcType="VARCHAR"/>
+        <result column="signature_algorithms" property="signatureAlgorithms" jdbcType="VARCHAR"/>
+        <result column="kem_algorithms" property="kemAlgorithms" jdbcType="VARCHAR"/>
+        <result column="require_hybrid_signature" property="requireHybridSignature" jdbcType="BOOLEAN"/>
+        <result column="min_validity_days" property="minValidityDays" jdbcType="INTEGER"/>
+        <result column="max_validity_days" property="maxValidityDays" jdbcType="INTEGER"/>
+        <result column="subject_dn_pattern" property="subjectDnPattern" jdbcType="VARCHAR"/>
+        <result column="subject_dn_required_fields" property="subjectDnRequiredFields" jdbcType="VARCHAR"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN"/>
+        <result column="version" property="version" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        policy_id, certificate_type, policy_name, signature_algorithms, kem_algorithms,
+        require_hybrid_signature, min_validity_days, max_validity_days, subject_dn_pattern,
+        subject_dn_required_fields, enabled, version, create_time
+    </sql>
+
+    <insert id="insert" parameterType="org.wyman.infrastructure.dao.po.CertificatePolicyPO">
+        INSERT INTO certificate_policy (
+            policy_id, certificate_type, policy_name, signature_algorithms, kem_algorithms,
+            require_hybrid_signature, min_validity_days, max_validity_days, subject_dn_pattern,
+            subject_dn_required_fields, enabled, version, create_time
+        ) VALUES (
+            #{policyId,jdbcType=VARCHAR}, #{certificateType,jdbcType=VARCHAR}, #{policyName,jdbcType=VARCHAR},
+            #{signatureAlgorithms,jdbcType=VARCHAR}, #{kemAlgorithms,jdbcType=VARCHAR},
+            #{requireHybridSignature,jdbcType=BOOLEAN}, #{minValidityDays,jdbcType=INTEGER},
+            #{maxValidityDays,jdbcType=INTEGER}, #{subjectDnPattern,jdbcType=VARCHAR},
+            #{subjectDnRequiredFields,jdbcType=VARCHAR}, #{enabled,jdbcType=BOOLEAN},
+            #{version,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.wyman.infrastructure.dao.po.CertificatePolicyPO">
+        UPDATE certificate_policy
+        SET policy_name = #{policyName,jdbcType=VARCHAR},
+            signature_algorithms = #{signatureAlgorithms,jdbcType=VARCHAR},
+            kem_algorithms = #{kemAlgorithms,jdbcType=VARCHAR},
+            require_hybrid_signature = #{requireHybridSignature,jdbcType=BOOLEAN},
+            min_validity_days = #{minValidityDays,jdbcType=INTEGER},
+            max_validity_days = #{maxValidityDays,jdbcType=INTEGER},
+            subject_dn_pattern = #{subjectDnPattern,jdbcType=VARCHAR},
+            subject_dn_required_fields = #{subjectDnRequiredFields,jdbcType=VARCHAR},
+            enabled = #{enabled,jdbcType=BOOLEAN},
+            version = #{version,jdbcType=VARCHAR}
+        WHERE policy_id = #{policyId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_policy
+        WHERE policy_id = #{policyId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectEnabledByType" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_policy
+        WHERE certificate_type = #{certificateType,jdbcType=VARCHAR}
+          AND enabled = 1
+        LIMIT 1
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_policy
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectEnabled" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_policy
+        WHERE enabled = 1
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

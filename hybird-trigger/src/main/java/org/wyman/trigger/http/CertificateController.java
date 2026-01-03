@@ -4,14 +4,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.wyman.api.dto.*;
 import org.wyman.api.response.Response;
+import org.wyman.domain.authentication.model.aggregate.AuthenticationRequest;
+import org.wyman.domain.authentication.model.entity.Applicant;
+import org.wyman.domain.authentication.valobj.CertificateSigningRequest;
+import org.wyman.domain.authentication.service.AuthenticationService;
+import org.wyman.domain.lifecycle.adapter.port.ICertificateRepository;
+import org.wyman.domain.lifecycle.model.aggregate.Certificate;
 import org.wyman.domain.lifecycle.service.CertificateLifecycleService;
+import org.wyman.domain.policy.service.PolicyService;
 import org.wyman.domain.signing.service.SigningService;
 import org.wyman.domain.status.service.RevocationStatusService;
+import org.wyman.infrastructure.dao.mapper.CertificateChainMapper;
+import org.wyman.infrastructure.dao.po.CertificateChainPO;
+import org.wyman.types.enums.CertificateType;
 import org.wyman.types.enums.RevocationReason;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 证书管理控制器
@@ -22,48 +32,248 @@ import java.util.Map;
 @CrossOrigin("*")
 public class CertificateController {
 
+    private final AuthenticationService authenticationService;
+    private final PolicyService policyService;
     private final SigningService signingService;
     private final CertificateLifecycleService lifecycleService;
     private final RevocationStatusService revocationStatusService;
+    private final ICertificateRepository certificateRepository;
+    private final CertificateChainMapper certificateChainMapper;
 
-    public CertificateController(SigningService signingService,
+    public CertificateController(AuthenticationService authenticationService,
+                                 PolicyService policyService,
+                                 SigningService signingService,
                                  CertificateLifecycleService lifecycleService,
-                                 RevocationStatusService revocationStatusService) {
+                                 RevocationStatusService revocationStatusService,
+                                 ICertificateRepository certificateRepository,
+                                 CertificateChainMapper certificateChainMapper) {
+        this.authenticationService = authenticationService;
+        this.policyService = policyService;
         this.signingService = signingService;
         this.lifecycleService = lifecycleService;
         this.revocationStatusService = revocationStatusService;
+        this.certificateRepository = certificateRepository;
+        this.certificateChainMapper = certificateChainMapper;
     }
 
     /**
-     * 签发证书
+     * 申请证书
      */
-    @PostMapping("/issue")
-    public Response<CertificateIssuanceResponse> issueCertificate(@RequestBody CertificateIssuanceRequest request) {
+    @PostMapping("/apply")
+    public Response<CertificateIssuanceResponse> applyCertificate(@RequestBody CertificateApplyRequest request) {
         try {
-            // 简化实现,实际需要从请求中提取公钥等参数
-            org.wyman.domain.signing.valobj.Certificate certificate = signingService.issueCertificate(
-                request.getCaName(),
-                "CN=" + request.getApplicantId(), // 简化:直接用申请者ID作为CN
-                null, // 公钥需要从CSR中提取
-                request.getNotBefore() != null ? request.getNotBefore() : LocalDateTime.now(),
-                request.getNotAfter(),
-                request.getSignatureAlgorithm(),
-                request.getKemAlgorithm()
+            // 1. 创建申请者
+            Applicant applicant = new Applicant(
+                request.getApplicantId(),
+                request.getApplicantName()
+            );
+            applicant.setEmail(request.getApplicantEmail());
+
+            // 2. 创建CSR
+            CertificateSigningRequest csr = new CertificateSigningRequest();
+            csr.setCsrData(request.getCsrPemData());
+            csr.setSubjectDN("CN=" + request.getApplicantName());
+            csr.setPublicKeyAlgorithm("SM2");
+
+            // 3. 执行身份验证
+            AuthenticationRequest authRequest = authenticationService.processAuthentication(
+                java.util.UUID.randomUUID().toString(),
+                request.getApplicantId(),
+                request.getIdToken(),
+                request.getCsrPemData()
             );
 
+            if (authRequest.getStatus() != org.wyman.types.enums.AuthRequestStatus.VALIDATION_SUCCESSFUL) {
+                return Response.fail("身份验证失败: " + authRequest.getFailureReason());
+            }
+
+            // 4. 获取策略
+            CertificateType certType = CertificateType.valueOf(request.getCertificateType());
+            var policy = policyService.getPolicyForCertificateType(certType);
+            if (policy == null) {
+                return Response.fail("未找到可用的证书策略");
+            }
+
+            // 5. 签发证书(简化实现)
+            org.wyman.domain.signing.valobj.Certificate cert = signingService.issueCertificate(
+                request.getCaName(),
+                "CN=" + request.getApplicantName(),
+                null, // publicKey - 简化实现
+                LocalDateTime.now(),
+                request.getNotAfter(),
+                "SM2",
+                null
+            );
+
+            // 6. 保存证书
+            Certificate certificate = new Certificate(
+                cert.getSerialNumber(),
+                certType,
+                cert.getSubjectDN(),
+                cert.getIssuerDN(),
+                cert.getNotBefore(),
+                cert.getNotAfter(),
+                request.getApplicantId()
+            );
+            certificate.setPemEncoded(cert.getPemEncoded());
+            certificate.setIssuanceRequestId(authRequest.getRequestId());
+            certificate.activate();
+
+            certificateRepository.save(certificate);
+
+            // 7. 构建响应
             CertificateIssuanceResponse response = new CertificateIssuanceResponse();
+            response.setSerialNumber(cert.getSerialNumber());
+            response.setCertificatePem(cert.getPemEncoded());
+            response.setSubjectDN(cert.getSubjectDN());
+            response.setIssuerDN(cert.getIssuerDN());
+            response.setNotBefore(cert.getNotBefore().toString());
+            response.setNotAfter(cert.getNotAfter().toString());
+            response.setSignatureAlgorithm(cert.getSignatureAlgorithm());
+            response.setCrlDistributionPoint(cert.getCrlDistributionPoint());
+
+            return Response.success(response);
+        } catch (Exception e) {
+            log.error("申请证书失败", e);
+            return Response.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 申请混合证书
+     */
+    @PostMapping("/apply/hybrid")
+    public Response<CertificateIssuanceResponse> applyHybridCertificate(@RequestBody HybridCertificateApplyRequest request) {
+        try {
+            // 简化实现:直接调用普通证书申请
+            CertificateApplyRequest applyRequest = new CertificateApplyRequest();
+            applyRequest.setApplicantId(request.getApplicantId());
+            applyRequest.setApplicantName(request.getApplicantName());
+            applyRequest.setApplicantEmail(request.getApplicantEmail());
+            applyRequest.setIdToken(request.getIdToken());
+            applyRequest.setCsrPemData(request.getClassicalCsrPemData());
+            applyRequest.setCertificateType("HYBRID");
+            applyRequest.setNotAfter(request.getNotAfter());
+            applyRequest.setCaName(request.getCaName());
+
+            return applyCertificate(applyRequest);
+        } catch (Exception e) {
+            log.error("申请混合证书失败", e);
+            return Response.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 查询证书
+     */
+    @GetMapping("/query")
+    public Response<CertificateQueryResponse> queryCertificate(@RequestParam String serialNumber) {
+        try {
+            Certificate certificate = certificateRepository.findBySerialNumber(serialNumber);
+            if (certificate == null) {
+                return Response.fail("证书不存在");
+            }
+
+            CertificateQueryResponse response = new CertificateQueryResponse();
             response.setSerialNumber(certificate.getSerialNumber());
-            response.setCertificatePem(certificate.getPemEncoded());
+            response.setCertificateType(certificate.getCertificateType().name());
+            response.setStatus(certificate.getStatus().name());
             response.setSubjectDN(certificate.getSubjectDN());
             response.setIssuerDN(certificate.getIssuerDN());
             response.setNotBefore(certificate.getNotBefore().toString());
             response.setNotAfter(certificate.getNotAfter().toString());
-            response.setSignatureAlgorithm(certificate.getSignatureAlgorithm());
-            response.setCrlDistributionPoint(certificate.getCrlDistributionPoint());
+            response.setApplicantId(certificate.getApplicantId());
+            response.setCertificatePem(certificate.getPemEncoded());
 
             return Response.success(response);
         } catch (Exception e) {
-            log.error("签发证书失败", e);
+            log.error("查询证书失败", e);
+            return Response.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 查询证书链
+     */
+    @GetMapping("/chain")
+    public Response<CertificateChainResponse> queryCertificateChain(@RequestParam String serialNumber) {
+        try {
+            Certificate certificate = certificateRepository.findBySerialNumber(serialNumber);
+            if (certificate == null) {
+                return Response.fail("证书不存在");
+            }
+
+            List<CertificateChainPO> chainList = certificateChainMapper
+                .selectByCertificateSerialNumber(serialNumber);
+
+            List<CertificateChainResponse.CertificateInfo> chain = new ArrayList<>();
+
+            // 添加当前证书
+            chain.add(new CertificateChainResponse.CertificateInfo(
+                certificate.getSerialNumber(),
+                certificate.getSubjectDN(),
+                certificate.getIssuerDN(),
+                certificate.getPemEncoded(),
+                0
+            ));
+
+            // 添加父证书
+            for (CertificateChainPO chainPO : chainList) {
+                if (chainPO.getParentSerialNumber() != null) {
+                    Certificate parentCert = certificateRepository
+                        .findBySerialNumber(chainPO.getParentSerialNumber());
+                    if (parentCert != null) {
+                        chain.add(new CertificateChainResponse.CertificateInfo(
+                            parentCert.getSerialNumber(),
+                            parentCert.getSubjectDN(),
+                            parentCert.getIssuerDN(),
+                            parentCert.getPemEncoded(),
+                            chainPO.getLevel()
+                        ));
+                    }
+                }
+            }
+
+            CertificateChainResponse response = new CertificateChainResponse();
+            response.setSerialNumber(serialNumber);
+            response.setChain(chain);
+
+            return Response.success(response);
+        } catch (Exception e) {
+            log.error("查询证书链失败", e);
+            return Response.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 查询设备证书
+     */
+    @GetMapping("/device")
+    public Response<List<CertificateQueryResponse>> queryDeviceCertificates(
+            @RequestParam String applicantId) {
+        try {
+            List<Certificate> certificates = certificateRepository
+                .findByApplicantId(applicantId);
+
+            List<CertificateQueryResponse> responses = certificates.stream()
+                .map(cert -> {
+                    CertificateQueryResponse response = new CertificateQueryResponse();
+                    response.setSerialNumber(cert.getSerialNumber());
+                    response.setCertificateType(cert.getCertificateType().name());
+                    response.setStatus(cert.getStatus().name());
+                    response.setSubjectDN(cert.getSubjectDN());
+                    response.setIssuerDN(cert.getIssuerDN());
+                    response.setNotBefore(cert.getNotBefore().toString());
+                    response.setNotAfter(cert.getNotAfter().toString());
+                    response.setApplicantId(cert.getApplicantId());
+                    response.setCertificatePem(cert.getPemEncoded());
+                    return response;
+                })
+                .collect(Collectors.toList());
+
+            return Response.success(responses);
+        } catch (Exception e) {
+            log.error("查询设备证书失败", e);
             return Response.fail(e.getMessage());
         }
     }
@@ -84,6 +294,106 @@ public class CertificateController {
             return Response.success();
         } catch (Exception e) {
             log.error("吊销证书失败", e);
+            return Response.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 续期证书
+     */
+    @PostMapping("/renew")
+    public Response<CertificateIssuanceResponse> renewCertificate(@RequestBody CertificateRenewalRequest request) {
+        try {
+            // 1. 查询原证书
+            Certificate oldCert = certificateRepository.findBySerialNumber(request.getOldSerialNumber());
+            if (oldCert == null) {
+                return Response.fail("原证书不存在");
+            }
+
+            // 2. 标记原证书为待续期
+            oldCert.markForRenewal();
+            certificateRepository.save(oldCert);
+
+            // 3. 创建新CSR
+            CertificateSigningRequest csr = new CertificateSigningRequest();
+            csr.setCsrData(request.getCsrPemData());
+            csr.setSubjectDN(oldCert.getSubjectDN());
+            csr.setPublicKeyAlgorithm("SM2");
+
+            // 4. 签发新证书
+            org.wyman.domain.signing.valobj.Certificate newCert = signingService.issueCertificate(
+                oldCert.getIssuerDN(),
+                oldCert.getSubjectDN(),
+                null,
+                LocalDateTime.now(),
+                request.getNotAfter(),
+                "SM2",
+                null
+            );
+
+            // 5. 保存新证书
+            Certificate certificate = new Certificate(
+                newCert.getSerialNumber(),
+                oldCert.getCertificateType(),
+                newCert.getSubjectDN(),
+                newCert.getIssuerDN(),
+                newCert.getNotBefore(),
+                newCert.getNotAfter(),
+                oldCert.getApplicantId()
+            );
+            certificate.setPemEncoded(newCert.getPemEncoded());
+            certificate.activate();
+
+            certificateRepository.save(certificate);
+
+            // 6. 构建响应
+            CertificateIssuanceResponse response = new CertificateIssuanceResponse();
+            response.setSerialNumber(newCert.getSerialNumber());
+            response.setCertificatePem(newCert.getPemEncoded());
+            response.setSubjectDN(newCert.getSubjectDN());
+            response.setIssuerDN(newCert.getIssuerDN());
+            response.setNotBefore(newCert.getNotBefore().toString());
+            response.setNotAfter(newCert.getNotAfter().toString());
+            response.setSignatureAlgorithm(newCert.getSignatureAlgorithm());
+            response.setCrlDistributionPoint(newCert.getCrlDistributionPoint());
+
+            return Response.success(response);
+        } catch (Exception e) {
+            log.error("续期证书失败", e);
+            return Response.fail(e.getMessage());
+        }
+    }
+
+    /**
+     * 签发证书(保留旧接口)
+     */
+    @PostMapping("/issue")
+    public Response<CertificateIssuanceResponse> issueCertificate(@RequestBody CertificateIssuanceRequest request) {
+        try {
+            // 简化实现,实际需要从请求中提取公钥等参数
+            org.wyman.domain.signing.valobj.Certificate certificate = signingService.issueCertificate(
+                request.getCaName(),
+                "CN=" + request.getApplicantId(),
+                null,
+                request.getNotBefore() != null ? request.getNotBefore() : LocalDateTime.now(),
+                request.getNotAfter(),
+                request.getSignatureAlgorithm(),
+                request.getKemAlgorithm()
+            );
+
+            CertificateIssuanceResponse response = new CertificateIssuanceResponse();
+            response.setSerialNumber(certificate.getSerialNumber());
+            response.setCertificatePem(certificate.getPemEncoded());
+            response.setSubjectDN(certificate.getSubjectDN());
+            response.setIssuerDN(certificate.getIssuerDN());
+            response.setNotBefore(certificate.getNotBefore().toString());
+            response.setNotAfter(certificate.getNotAfter().toString());
+            response.setSignatureAlgorithm(certificate.getSignatureAlgorithm());
+            response.setCrlDistributionPoint(certificate.getCrlDistributionPoint());
+
+            return Response.success(response);
+        } catch (Exception e) {
+            log.error("签发证书失败", e);
             return Response.fail(e.getMessage());
         }
     }

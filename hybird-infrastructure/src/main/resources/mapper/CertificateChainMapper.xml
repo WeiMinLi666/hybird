@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wyman.infrastructure.dao.mapper.CertificateChainMapper">
+
+    <resultMap id="BaseResultMap" type="org.wyman.infrastructure.dao.po.CertificateChainPO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="certificate_serial_number" property="certificateSerialNumber" jdbcType="VARCHAR"/>
+        <result column="parent_serial_number" property="parentSerialNumber" jdbcType="VARCHAR"/>
+        <result column="level" property="level" jdbcType="INTEGER"/>
+        <result column="order_index" property="orderIndex" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, certificate_serial_number, parent_serial_number, level, order_index, create_time
+    </sql>
+
+    <insert id="insert" parameterType="org.wyman.infrastructure.dao.po.CertificateChainPO">
+        INSERT INTO certificate_chain (
+            certificate_serial_number, parent_serial_number, level, order_index, create_time
+        ) VALUES (
+            #{certificateSerialNumber,jdbcType=VARCHAR}, #{parentSerialNumber,jdbcType=VARCHAR},
+            #{level,jdbcType=INTEGER}, #{orderIndex,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <select id="selectByCertificateSerialNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_chain
+        WHERE certificate_serial_number = #{serialNumber,jdbcType=VARCHAR}
+        ORDER BY level ASC, order_index ASC
+    </select>
+
+    <select id="selectByParentSerialNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_chain
+        WHERE parent_serial_number = #{parentSerialNumber,jdbcType=VARCHAR}
+        ORDER BY level ASC, order_index ASC
+    </select>
+
+</mapper>

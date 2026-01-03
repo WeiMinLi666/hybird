@@ -3,3 +3,8 @@ spring:
     name: hybird-app
   profiles:
     active: dev
+
+# 缓存类型配置
+# 可选值: redis, database
+cache:
+  type: redis

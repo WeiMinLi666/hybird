@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wyman.infrastructure.dao.mapper.CertificateMapper">
+
+    <resultMap id="BaseResultMap" type="org.wyman.infrastructure.dao.po.CertificatePO">
+        <id column="serial_number" property="serialNumber" jdbcType="VARCHAR"/>
+        <result column="certificate_type" property="certificateType" jdbcType="VARCHAR"/>
+        <result column="subject_dn" property="subjectDn" jdbcType="VARCHAR"/>
+        <result column="issuer_dn" property="issuerDn" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="VARCHAR"/>
+        <result column="not_before" property="notBefore" jdbcType="TIMESTAMP"/>
+        <result column="not_after" property="notAfter" jdbcType="TIMESTAMP"/>
+        <result column="applicant_id" property="applicantId" jdbcType="VARCHAR"/>
+        <result column="issuance_request_id" property="issuanceRequestId" jdbcType="VARCHAR"/>
+        <result column="pem_encoded" property="pemEncoded" jdbcType="LONGVARCHAR"/>
+        <result column="revocation_reason" property="revocationReason" jdbcType="VARCHAR"/>
+        <result column="revoked_by" property="revokedBy" jdbcType="VARCHAR"/>
+        <result column="revocation_comments" property="revocationComments" jdbcType="VARCHAR"/>
+        <result column="renewal_notice_days" property="renewalNoticeDays" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        serial_number, certificate_type, subject_dn, issuer_dn, status,
+        not_before, not_after, applicant_id, issuance_request_id, pem_encoded,
+        revocation_reason, revoked_by, revocation_comments, renewal_notice_days,
+        create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="org.wyman.infrastructure.dao.po.CertificatePO">
+        INSERT INTO certificate (
+            serial_number, certificate_type, subject_dn, issuer_dn, status,
+            not_before, not_after, applicant_id, issuance_request_id, pem_encoded,
+            renewal_notice_days, create_time, update_time
+        ) VALUES (
+            #{serialNumber,jdbcType=VARCHAR}, #{certificateType,jdbcType=VARCHAR}, #{subjectDn,jdbcType=VARCHAR},
+            #{issuerDn,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{notBefore,jdbcType=TIMESTAMP},
+            #{notAfter,jdbcType=TIMESTAMP}, #{applicantId,jdbcType=VARCHAR}, #{issuanceRequestId,jdbcType=VARCHAR},
+            #{pemEncoded,jdbcType=LONGVARCHAR}, #{renewalNoticeDays,jdbcType=INTEGER},
+            #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.wyman.infrastructure.dao.po.CertificatePO">
+        UPDATE certificate
+        SET status = #{status,jdbcType=VARCHAR},
+            not_before = #{notBefore,jdbcType=TIMESTAMP},
+            not_after = #{notAfter,jdbcType=TIMESTAMP},
+            pem_encoded = #{pemEncoded,jdbcType=LONGVARCHAR},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        WHERE serial_number = #{serialNumber,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectBySerialNumber" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate
+        WHERE serial_number = #{serialNumber,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByApplicantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate
+        WHERE applicant_id = #{applicantId,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectByStatus" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate
+        WHERE status = #{status,jdbcType=VARCHAR}
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectExpiringCertificates" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate
+        WHERE status = 'ACTIVE'
+          AND not_after &lt; #{threshold,jdbcType=TIMESTAMP}
+          AND not_after &gt; NOW()
+        ORDER BY not_after ASC
+    </select>
+
+    <select id="selectRevokedCertificates" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate
+        WHERE status = 'REVOKED'
+        ORDER BY update_time DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE certificate
+        SET status = #{status,jdbcType=VARCHAR}, update_time = NOW()
+        WHERE serial_number = #{serialNumber,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateRevocationInfo" parameterType="org.wyman.infrastructure.dao.po.CertificatePO">
+        UPDATE certificate
+        SET revocation_reason = #{revocationReason,jdbcType=VARCHAR},
+            revoked_by = #{revokedBy,jdbcType=VARCHAR},
+            revocation_comments = #{revocationComments,jdbcType=VARCHAR},
+            update_time = NOW()
+        WHERE serial_number = #{serialNumber,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

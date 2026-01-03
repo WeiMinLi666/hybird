@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wyman.infrastructure.dao.mapper.CertificateAuthorityMapper">
+
+    <resultMap id="BaseResultMap" type="org.wyman.infrastructure.dao.po.CertificateAuthorityPO">
+        <id column="ca_id" property="caId" jdbcType="VARCHAR"/>
+        <result column="ca_name" property="caName" jdbcType="VARCHAR"/>
+        <result column="ca_dn" property="caDn" jdbcType="VARCHAR"/>
+        <result column="certificate_pem" property="certificatePem" jdbcType="LONGVARCHAR"/>
+        <result column="private_key_alias" property="privateKeyAlias" jdbcType="VARCHAR"/>
+        <result column="key_type" property="keyType" jdbcType="VARCHAR"/>
+        <result column="key_size" property="keySize" jdbcType="INTEGER"/>
+        <result column="enabled" property="enabled" jdbcType="BOOLEAN"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        ca_id, ca_name, ca_dn, certificate_pem, private_key_alias,
+        key_type, key_size, enabled, create_time
+    </sql>
+
+    <insert id="insert" parameterType="org.wyman.infrastructure.dao.po.CertificateAuthorityPO">
+        INSERT INTO certificate_authority (
+            ca_id, ca_name, ca_dn, certificate_pem, private_key_alias,
+            key_type, key_size, enabled, create_time
+        ) VALUES (
+            #{caId,jdbcType=VARCHAR}, #{caName,jdbcType=VARCHAR}, #{caDn,jdbcType=VARCHAR},
+            #{certificatePem,jdbcType=LONGVARCHAR}, #{privateKeyAlias,jdbcType=VARCHAR},
+            #{keyType,jdbcType=VARCHAR}, #{keySize,jdbcType=INTEGER},
+            #{enabled,jdbcType=BOOLEAN}, #{createTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.wyman.infrastructure.dao.po.CertificateAuthorityPO">
+        UPDATE certificate_authority
+        SET ca_name = #{caName,jdbcType=VARCHAR},
+            certificate_pem = #{certificatePem,jdbcType=LONGVARCHAR},
+            private_key_alias = #{privateKeyAlias,jdbcType=VARCHAR},
+            key_type = #{keyType,jdbcType=VARCHAR},
+            key_size = #{keySize,jdbcType=INTEGER},
+            enabled = #{enabled,jdbcType=BOOLEAN}
+        WHERE ca_id = #{caId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_authority
+        WHERE ca_id = #{caId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_authority
+        ORDER BY create_time DESC
+    </select>
+
+    <select id="selectEnabled" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM certificate_authority
+        WHERE enabled = 1
+        ORDER BY create_time DESC
+    </select>
+
+</mapper>

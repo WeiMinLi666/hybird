@@ -1,163 +1,54 @@
-26-01-03.21:58:10.901 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 22353 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
-26-01-03.21:58:10.902 [main            ] INFO  Application            - The following 1 profile is active: "dev"
-26-01-03.21:58:11.144 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
-26-01-03.21:58:11.308 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
-26-01-03.21:58:11.313 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
-26-01-03.21:58:11.313 [main            ] INFO  StandardService        - Starting service [Tomcat]
-26-01-03.21:58:11.314 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
-26-01-03.21:58:11.342 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
-26-01-03.21:58:11.342 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 420 ms
-26-01-03.21:58:11.399 [main            ] INFO  OptionalValidatorFactoryBean - Failed to set up a Bean Validation provider: jakarta.validation.NoProviderFoundException: Unable to create a Configuration, because no Jakarta Bean Validation provider could be found. Add a provider like Hibernate Validator (RI) to your classpath.
-26-01-03.21:58:11.552 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
-26-01-03.21:58:11.568 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
-26-01-03.21:58:11.573 [main            ] INFO  Application            - Started Application in 0.929 seconds (process running for 1.078)
-26-01-03.21:59:17.840 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
-26-01-03.21:59:17.853 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
-26-01-03.22:44:38.496 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
-26-01-03.22:44:38.516 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 40757 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
-26-01-03.22:44:38.516 [main            ] INFO  Application            - The following 1 profile is active: "dev"
-26-01-03.22:44:38.862 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-26-01-03.22:44:38.863 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-26-01-03.22:44:38.877 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 8 ms. Found 0 Redis repository interfaces.
-26-01-03.22:44:38.926 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
-26-01-03.22:44:39.159 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
-26-01-03.22:44:39.167 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
-26-01-03.22:44:39.168 [main            ] INFO  StandardService        - Starting service [Tomcat]
-26-01-03.22:44:39.169 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
-26-01-03.22:44:39.203 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
-26-01-03.22:44:39.204 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 665 ms
-26-01-03.22:44:39.231 [main            ] WARN  AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'dataInitializer' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes/org/wyman/config/DataInitializer.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'org.wyman.domain.policy.service.PolicyService' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
-26-01-03.22:44:39.232 [main            ] INFO  StandardService        - Stopping service [Tomcat]
-26-01-03.22:44:39.241 [main            ] INFO  ConditionEvaluationReportLogger - 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-26-01-03.22:44:39.248 [main            ] ERROR LoggingFailureAnalysisReporter - 
-
-***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-Parameter 0 of constructor in org.wyman.config.DataInitializer required a bean of type 'org.wyman.domain.policy.service.PolicyService' that could not be found.
-
-
-Action:
-
-Consider defining a bean of type 'org.wyman.domain.policy.service.PolicyService' in your configuration.
-
-26-01-03.22:46:54.596 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
-26-01-03.22:46:54.619 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 41525 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
-26-01-03.22:46:54.620 [main            ] INFO  Application            - The following 1 profile is active: "dev"
-26-01-03.22:46:54.985 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-26-01-03.22:46:54.986 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-26-01-03.22:46:55.001 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 9 ms. Found 0 Redis repository interfaces.
-26-01-03.22:46:55.054 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
-26-01-03.22:46:55.269 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
-26-01-03.22:46:55.274 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
-26-01-03.22:46:55.275 [main            ] INFO  StandardService        - Starting service [Tomcat]
-26-01-03.22:46:55.275 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
-26-01-03.22:46:55.302 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
-26-01-03.22:46:55.302 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 658 ms
-26-01-03.22:46:55.454 [main            ] WARN  AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'domainConfig' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes/org/wyman/config/DomainConfig.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'signingService' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-domain/target/classes/org/wyman/domain/signing/service/SigningService.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
-26-01-03.22:46:55.456 [main            ] INFO  StandardService        - Stopping service [Tomcat]
-26-01-03.22:46:55.467 [main            ] INFO  ConditionEvaluationReportLogger - 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-26-01-03.22:46:55.478 [main            ] ERROR SpringApplication      - Application run failed
-org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'domainConfig' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes/org/wyman/config/DomainConfig.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'signingService' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-domain/target/classes/org/wyman/domain/signing/service/SigningService.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
-	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
-	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1381)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1218)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1155)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1121)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1056)
-	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
-	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+26-01-04.00:28:11.944 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
+26-01-04.00:28:11.969 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 78701 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
+26-01-04.00:28:11.970 [main            ] INFO  Application            - The following 1 profile is active: "dev"
+26-01-04.00:28:12.084 [main            ] WARN  AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [org.wyman.Application]
+26-01-04.00:28:12.133 [main            ] ERROR SpringApplication      - Application run failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [org.wyman.Application]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:185)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:418)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:290)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:791)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:609)
 	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
 	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
 	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
-	at org.wyman.Application.main(Application.java:12)
-Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'signingService' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-domain/target/classes/org/wyman/domain/signing/service/SigningService.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
-	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
-	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1381)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1218)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
-	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1664)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1552)
-	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913)
-	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
-	... 21 common frames omitted
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1343)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1228)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
-	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
-	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
-	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1664)
-	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1552)
-	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913)
-	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
-	... 35 common frames omitted
-Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
-	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:222)
-	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:122)
-	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1337)
-	... 47 common frames omitted
-Caused by: java.lang.RuntimeException: 初始化密钥对失败
-	at org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider.<init>(MockPrivateKeyProvider.java:33)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
-	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
-	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
-	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
-	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:196)
-	... 49 common frames omitted
-Caused by: java.security.InvalidAlgorithmParameterException: Unknown curve name: sm2p256v1
-	at jdk.crypto.ec/sun.security.ec.ECKeyPairGenerator.initialize(ECKeyPairGenerator.java:105)
-	at java.base/java.security.KeyPairGenerator$Delegate.initialize(KeyPairGenerator.java:698)
-	at java.base/java.security.KeyPairGenerator.initialize(KeyPairGenerator.java:436)
-	at org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider.<init>(MockPrivateKeyProvider.java:25)
-	... 55 common frames omitted
-26-01-03.22:50:34.113 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
-26-01-03.22:50:34.133 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 42893 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
-26-01-03.22:50:34.134 [main            ] INFO  Application            - The following 1 profile is active: "dev"
-26-01-03.22:50:34.494 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-26-01-03.22:50:34.495 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-26-01-03.22:50:34.509 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 8 ms. Found 0 Redis repository interfaces.
-26-01-03.22:50:34.555 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
-26-01-03.22:50:34.758 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
-26-01-03.22:50:34.763 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
-26-01-03.22:50:34.764 [main            ] INFO  StandardService        - Starting service [Tomcat]
-26-01-03.22:50:34.764 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
-26-01-03.22:50:34.789 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
-26-01-03.22:50:34.789 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 630 ms
-26-01-03.22:50:35.508 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
-26-01-03.22:50:35.515 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
-26-01-03.22:50:35.521 [main            ] INFO  Application            - Started Application in 1.688 seconds (process running for 1.873)
-26-01-03.22:50:35.700 [http-nio-8091-exec-2] INFO  [/]                    - Initializing Spring DispatcherServlet 'dispatcherServlet'
-26-01-03.22:50:35.700 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Initializing Servlet 'dispatcherServlet'
-26-01-03.22:50:35.701 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Completed initialization in 1 ms
-26-01-03.22:50:38.826 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
-26-01-03.22:50:38.830 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
+	at org.wyman.Application.main(Application.java:14)
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'revocationStatusCacheRepository' for bean class [org.wyman.infrastructure.adapter.repository.RevocationStatusCacheRepository] conflicts with existing, non-compatible bean definition of same name and class [org.wyman.infrastructure.redis.RevocationStatusCacheRepository]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361)
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288)
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128)
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:332)
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:267)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:193)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:171)
+	... 13 common frames omitted
+26-01-04.00:34:17.831 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
+26-01-04.00:34:17.848 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 81388 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
+26-01-04.00:34:17.848 [main            ] INFO  Application            - The following 1 profile is active: "dev"
+26-01-04.00:34:18.183 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+26-01-04.00:34:18.184 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+26-01-04.00:34:18.202 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 12 ms. Found 0 Redis repository interfaces.
+26-01-04.00:34:18.444 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
+26-01-04.00:34:18.448 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
+26-01-04.00:34:18.449 [main            ] INFO  StandardService        - Starting service [Tomcat]
+26-01-04.00:34:18.449 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
+26-01-04.00:34:18.479 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
+26-01-04.00:34:18.479 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 603 ms
+26-01-04.00:34:19.263 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
+26-01-04.00:34:19.270 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
+26-01-04.00:34:19.276 [main            ] INFO  Application            - Started Application in 1.699 seconds (process running for 1.891)
+26-01-04.00:34:19.284 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Starting...
+26-01-04.00:34:19.409 [main            ] INFO  HikariPool             - Retail_HikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@687f62a5
+26-01-04.00:34:19.409 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Start completed.
+26-01-04.00:34:19.486 [http-nio-8091-exec-2] INFO  [/]                    - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-01-04.00:34:19.487 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Initializing Servlet 'dispatcherServlet'
+26-01-04.00:34:19.487 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Completed initialization in 0 ms
+26-01-04.00:34:33.484 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
+26-01-04.00:34:35.496 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
+26-01-04.00:34:35.514 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown initiated...
+26-01-04.00:34:35.518 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown completed.

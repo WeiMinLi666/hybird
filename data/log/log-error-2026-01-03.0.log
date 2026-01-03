@@ -1,0 +1,97 @@
+26-01-03.21:58:11.144 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
+26-01-03.22:44:38.926 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
+26-01-03.22:44:39.231 [main            ] WARN  AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'dataInitializer' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes/org/wyman/config/DataInitializer.class]: Unsatisfied dependency expressed through constructor parameter 0: No qualifying bean of type 'org.wyman.domain.policy.service.PolicyService' available: expected at least 1 bean which qualifies as autowire candidate. Dependency annotations: {}
+26-01-03.22:44:39.248 [main            ] ERROR LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Parameter 0 of constructor in org.wyman.config.DataInitializer required a bean of type 'org.wyman.domain.policy.service.PolicyService' that could not be found.
+
+
+Action:
+
+Consider defining a bean of type 'org.wyman.domain.policy.service.PolicyService' in your configuration.
+
+26-01-03.22:46:55.054 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.
+26-01-03.22:46:55.454 [main            ] WARN  AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'domainConfig' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes/org/wyman/config/DomainConfig.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'signingService' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-domain/target/classes/org/wyman/domain/signing/service/SigningService.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
+26-01-03.22:46:55.478 [main            ] ERROR SpringApplication      - Application run failed
+org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'domainConfig' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes/org/wyman/config/DomainConfig.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'signingService' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-domain/target/classes/org/wyman/domain/signing/service/SigningService.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1381)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1218)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1155)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1121)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1056)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:987)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:627)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
+	at org.wyman.Application.main(Application.java:12)
+Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'signingService' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-domain/target/classes/org/wyman/domain/signing/service/SigningService.class]: Unsatisfied dependency expressed through constructor parameter 2: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:804)
+	at org.springframework.beans.factory.support.ConstructorResolver.autowireConstructor(ConstructorResolver.java:240)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.autowireConstructor(AbstractAutowireCapableBeanFactory.java:1381)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1218)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1664)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1552)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+	... 21 common frames omitted
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'mockPrivateKeyProvider' defined in file [/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-infrastructure/target/classes/org/wyman/infrastructure/adapter/port/MockPrivateKeyProvider.class]: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1343)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1228)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:563)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:523)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:339)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:346)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:202)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1664)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1552)
+	at org.springframework.beans.factory.support.ConstructorResolver.resolveAutowiredArgument(ConstructorResolver.java:913)
+	at org.springframework.beans.factory.support.ConstructorResolver.createArgumentArray(ConstructorResolver.java:791)
+	... 35 common frames omitted
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider]: Constructor threw exception
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:222)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:122)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateBean(AbstractAutowireCapableBeanFactory.java:1337)
+	... 47 common frames omitted
+Caused by: java.lang.RuntimeException: 初始化密钥对失败
+	at org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider.<init>(MockPrivateKeyProvider.java:33)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at java.base/jdk.internal.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.base/java.lang.reflect.Constructor.newInstanceWithCaller(Constructor.java:499)
+	at java.base/java.lang.reflect.Constructor.newInstance(Constructor.java:480)
+	at org.springframework.beans.BeanUtils.instantiateClass(BeanUtils.java:196)
+	... 49 common frames omitted
+Caused by: java.security.InvalidAlgorithmParameterException: Unknown curve name: sm2p256v1
+	at jdk.crypto.ec/sun.security.ec.ECKeyPairGenerator.initialize(ECKeyPairGenerator.java:105)
+	at java.base/java.security.KeyPairGenerator$Delegate.initialize(KeyPairGenerator.java:698)
+	at java.base/java.security.KeyPairGenerator.initialize(KeyPairGenerator.java:436)
+	at org.wyman.infrastructure.adapter.port.MockPrivateKeyProvider.<init>(MockPrivateKeyProvider.java:25)
+	... 55 common frames omitted
+26-01-03.22:50:34.555 [main            ] WARN  ClassPathMapperScanner - No MyBatis mapper was found in '[org.wyman]' package. Please check your configuration.

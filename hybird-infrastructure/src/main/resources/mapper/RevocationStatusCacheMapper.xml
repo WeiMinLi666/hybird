@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.wyman.infrastructure.dao.mapper.RevocationStatusCacheMapper">
+
+    <resultMap id="BaseResultMap" type="org.wyman.infrastructure.dao.po.RevocationStatusCachePO">
+        <id column="cache_id" property="cacheId" jdbcType="VARCHAR"/>
+        <result column="cache_data" property="cacheData" jdbcType="LONGVARCHAR"/>
+        <result column="version" property="version" jdbcType="INTEGER"/>
+        <result column="is_latest" property="isLatest" jdbcType="BOOLEAN"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        cache_id, cache_data, version, is_latest, create_time, update_time
+    </sql>
+
+    <insert id="insert" parameterType="org.wyman.infrastructure.dao.po.RevocationStatusCachePO">
+        INSERT INTO revocation_status_cache (
+            cache_id, cache_data, version, is_latest, create_time, update_time
+        ) VALUES (
+            #{cacheId,jdbcType=VARCHAR}, #{cacheData,jdbcType=LONGVARCHAR},
+            #{version,jdbcType=INTEGER}, #{isLatest,jdbcType=BOOLEAN},
+            #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="org.wyman.infrastructure.dao.po.RevocationStatusCachePO">
+        UPDATE revocation_status_cache
+        SET cache_data = #{cacheData,jdbcType=LONGVARCHAR},
+            version = #{version,jdbcType=INTEGER},
+            is_latest = #{isLatest,jdbcType=BOOLEAN},
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        WHERE cache_id = #{cacheId,jdbcType=VARCHAR}
+    </update>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM revocation_status_cache
+        WHERE cache_id = #{cacheId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectLatest" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM revocation_status_cache
+        WHERE is_latest = 1
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM revocation_status_cache
+        WHERE cache_id = #{cacheId,jdbcType=VARCHAR}
+    </delete>
+
+    <update id="clearAllLatestFlag">
+        UPDATE revocation_status_cache
+        SET is_latest = 0
+    </update>
+
+</mapper>
