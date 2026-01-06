@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.wyman.api.dto.*;
 import org.wyman.api.response.Response;
+import org.wyman.domain.authentication.adapter.port.ICSRParser;
 import org.wyman.domain.authentication.model.aggregate.AuthenticationRequest;
 import org.wyman.domain.authentication.model.entity.Applicant;
 import org.wyman.domain.authentication.valobj.CertificateSigningRequest;
@@ -36,19 +37,22 @@ public class CertificateController {
     private final CertificateLifecycleService lifecycleService;
     private final RevocationStatusService revocationStatusService;
     private final CertificateChainService certificateChainService;
+    private final ICSRParser csrParser;
 
     public CertificateController(AuthenticationService authenticationService,
                                  PolicyService policyService,
                                  SigningService signingService,
                                  CertificateLifecycleService lifecycleService,
                                  RevocationStatusService revocationStatusService,
-                                 CertificateChainService certificateChainService) {
+                                 CertificateChainService certificateChainService,
+                                 ICSRParser csrParser) {
         this.authenticationService = authenticationService;
         this.policyService = policyService;
         this.signingService = signingService;
         this.lifecycleService = lifecycleService;
         this.revocationStatusService = revocationStatusService;
         this.certificateChainService = certificateChainService;
+        this.csrParser = csrParser;
     }
 
     /**
@@ -57,18 +61,20 @@ public class CertificateController {
     @PostMapping("/apply")
     public Response<CertificateIssuanceResponse> applyCertificate(@RequestBody CertificateApplyRequest request) {
         try {
-            // 1. 创建申请者
+            // 1. 解析CSR,提取公钥和主题DN
+            CertificateSigningRequest csr = csrParser.parsePEM(request.getCsrPemData());
+
+            // 验证CSR签名
+            if (!csr.isSignatureValid()) {
+                return Response.fail("CSR签名验证失败");
+            }
+
+            // 2. 创建申请者
             Applicant applicant = new Applicant(
                 request.getApplicantId(),
                 request.getApplicantName()
             );
             applicant.setEmail(request.getApplicantEmail());
-
-            // 2. 创建CSR
-            CertificateSigningRequest csr = new CertificateSigningRequest();
-            csr.setCsrData(request.getCsrPemData());
-            csr.setSubjectDN("CN=" + request.getApplicantName());
-            csr.setPublicKeyAlgorithm("SM2");
 
             // 3. 执行身份验证
             AuthenticationRequest authRequest = authenticationService.processAuthentication(
@@ -89,18 +95,31 @@ public class CertificateController {
                 return Response.fail("未找到可用的证书策略");
             }
 
-            // 5. 签发证书(简化实现)
+            // 5. 验证CSR符合策略
+            String signatureAlgorithm = csr.getPublicKeyAlgorithm();
+            if (!policyService.validateCSRAgainstPolicy(
+                certType,
+                signatureAlgorithm,
+                null,
+                csr.getSubjectDN(),
+                LocalDateTime.now(),
+                request.getNotAfter()
+            )) {
+                return Response.fail("CSR不符合策略要求");
+            }
+
+            // 6. 签发证书,使用从CSR中提取的公钥
             org.wyman.domain.signing.valobj.Certificate cert = signingService.issueCertificate(
                 request.getCaName(),
-                "CN=" + request.getApplicantName(),
-                null, // publicKey - 简化实现
+                csr.getSubjectDN(),
+                csr.getPublicKey(),  // 从CSR中提取的公钥
                 LocalDateTime.now(),
                 request.getNotAfter(),
-                "SM2",
+                signatureAlgorithm,
                 null
             );
 
-            // 6. 保存证书
+            // 7. 保存证书
             Certificate certificate = new Certificate(
                 cert.getSerialNumber(),
                 certType,
@@ -116,7 +135,7 @@ public class CertificateController {
 
             lifecycleService.saveCertificate(certificate);
 
-            // 7. 构建响应
+            // 8. 构建响应
             CertificateIssuanceResponse response = new CertificateIssuanceResponse();
             response.setSerialNumber(cert.getSerialNumber());
             response.setCertificatePem(cert.getPemEncoded());
@@ -422,11 +441,25 @@ public class CertificateController {
 
             // 转换为RevokedCertificate列表
             List<org.wyman.domain.signing.valobj.RevokedCertificate> revokedList = revokedCerts.stream()
-                .map(cert -> new org.wyman.domain.signing.valobj.RevokedCertificate(
-                    cert.getSerialNumber(),
-                    cert.getRevocationInfo().getRevocationTime(),
-                    cert.getRevocationInfo().getRevocationReason()
-                ))
+                .map(cert -> {
+                    org.wyman.domain.signing.valobj.RevokedCertificate revoked =
+                        new org.wyman.domain.signing.valobj.RevokedCertificate();
+                    revoked.setSerialNumber(cert.getSerialNumber());
+                    revoked.setRevocationDate(cert.getRevocationInfo().getRevocationTime());
+                    // 将String原因转换为RevocationReason枚举
+                    String reasonStr = cert.getRevocationInfo().getRevocationReason();
+                    org.wyman.types.enums.RevocationReason reasonEnum = null;
+                    if (reasonStr != null) {
+                        for (org.wyman.types.enums.RevocationReason r : org.wyman.types.enums.RevocationReason.values()) {
+                            if (r.getDesc().equals(reasonStr)) {
+                                reasonEnum = r;
+                                break;
+                            }
+                        }
+                    }
+                    revoked.setReason(reasonEnum != null ? reasonEnum : org.wyman.types.enums.RevocationReason.KEY_COMPROMISE);
+                    return revoked;
+                })
                 .toList();
 
             org.wyman.domain.signing.valobj.CRL crl = signingService.generateCRL(

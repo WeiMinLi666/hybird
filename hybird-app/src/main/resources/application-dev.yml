@@ -51,6 +51,18 @@ mybatis:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+# 对象存储配置
+object-storage:
+  provider: mock  # minio 或 mock
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: hybird-certificates
+  crl-path: crl/
+  cert-path: certificates/
+
 # Redis配置 - TODO: 修改为实际的Redis连接信息
 #spring:
 #  data:

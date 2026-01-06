@@ -1,5 +1,7 @@
 package org.wyman.domain.authentication.adapter.port;
 
+import org.wyman.domain.authentication.valobj.CertificateSigningRequest;
+
 /**
  * CSR解析器接口
  */
@@ -7,15 +9,15 @@ public interface ICSRParser {
     /**
      * 解析CSR PEM格式数据
      */
-    org.wyman.domain.authentication.valobj.CertificateSigningRequest parsePEM(String pemData);
+    CertificateSigningRequest parsePEM(String pemData);
 
     /**
      * 解析CSR DER格式数据
      */
-    org.wyman.domain.authentication.valobj.CertificateSigningRequest parseDER(byte[] derData);
+    CertificateSigningRequest parseDER(byte[] derData);
 
     /**
      * 验证CSR签名
      */
-    boolean verifySignature(org.wyman.domain.authentication.valobj.CertificateSigningRequest csr);
+    boolean verifySignature(CertificateSigningRequest csr);
 }

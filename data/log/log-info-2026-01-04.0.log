@@ -1,0 +1,96 @@
+26-01-04.00:28:11.944 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
+26-01-04.00:28:11.969 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 78701 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
+26-01-04.00:28:11.970 [main            ] INFO  Application            - The following 1 profile is active: "dev"
+26-01-04.00:28:12.084 [main            ] WARN  AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [org.wyman.Application]
+26-01-04.00:28:12.133 [main            ] ERROR SpringApplication      - Application run failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Failed to parse configuration class [org.wyman.Application]
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:185)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.processConfigBeanDefinitions(ConfigurationClassPostProcessor.java:418)
+	at org.springframework.context.annotation.ConfigurationClassPostProcessor.postProcessBeanDefinitionRegistry(ConfigurationClassPostProcessor.java:290)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanDefinitionRegistryPostProcessors(PostProcessorRegistrationDelegate.java:349)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:118)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:791)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:609)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:752)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:439)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:318)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1361)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1350)
+	at org.wyman.Application.main(Application.java:14)
+Caused by: org.springframework.context.annotation.ConflictingBeanDefinitionException: Annotation-specified bean name 'revocationStatusCacheRepository' for bean class [org.wyman.infrastructure.adapter.repository.RevocationStatusCacheRepository] conflicts with existing, non-compatible bean definition of same name and class [org.wyman.infrastructure.redis.RevocationStatusCacheRepository]
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.checkCandidate(ClassPathBeanDefinitionScanner.java:361)
+	at org.springframework.context.annotation.ClassPathBeanDefinitionScanner.doScan(ClassPathBeanDefinitionScanner.java:288)
+	at org.springframework.context.annotation.ComponentScanAnnotationParser.parse(ComponentScanAnnotationParser.java:128)
+	at org.springframework.context.annotation.ConfigurationClassParser.doProcessConfigurationClass(ConfigurationClassParser.java:332)
+	at org.springframework.context.annotation.ConfigurationClassParser.processConfigurationClass(ConfigurationClassParser.java:267)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:193)
+	at org.springframework.context.annotation.ConfigurationClassParser.parse(ConfigurationClassParser.java:171)
+	... 13 common frames omitted
+26-01-04.00:34:17.831 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
+26-01-04.00:34:17.848 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 81388 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
+26-01-04.00:34:17.848 [main            ] INFO  Application            - The following 1 profile is active: "dev"
+26-01-04.00:34:18.183 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+26-01-04.00:34:18.184 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+26-01-04.00:34:18.202 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 12 ms. Found 0 Redis repository interfaces.
+26-01-04.00:34:18.444 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
+26-01-04.00:34:18.448 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
+26-01-04.00:34:18.449 [main            ] INFO  StandardService        - Starting service [Tomcat]
+26-01-04.00:34:18.449 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
+26-01-04.00:34:18.479 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
+26-01-04.00:34:18.479 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 603 ms
+26-01-04.00:34:19.263 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
+26-01-04.00:34:19.270 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
+26-01-04.00:34:19.276 [main            ] INFO  Application            - Started Application in 1.699 seconds (process running for 1.891)
+26-01-04.00:34:19.284 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Starting...
+26-01-04.00:34:19.409 [main            ] INFO  HikariPool             - Retail_HikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@687f62a5
+26-01-04.00:34:19.409 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Start completed.
+26-01-04.00:34:19.486 [http-nio-8091-exec-2] INFO  [/]                    - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-01-04.00:34:19.487 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Initializing Servlet 'dispatcherServlet'
+26-01-04.00:34:19.487 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Completed initialization in 0 ms
+26-01-04.00:34:33.484 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
+26-01-04.00:34:35.496 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
+26-01-04.00:34:35.514 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown initiated...
+26-01-04.00:34:35.518 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown completed.
+26-01-04.00:58:22.230 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
+26-01-04.00:58:22.250 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 91182 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
+26-01-04.00:58:22.250 [main            ] INFO  Application            - The following 1 profile is active: "dev"
+26-01-04.00:58:22.608 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+26-01-04.00:58:22.609 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+26-01-04.00:58:22.629 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 13 ms. Found 0 Redis repository interfaces.
+26-01-04.00:58:22.867 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
+26-01-04.00:58:22.872 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
+26-01-04.00:58:22.872 [main            ] INFO  StandardService        - Starting service [Tomcat]
+26-01-04.00:58:22.872 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
+26-01-04.00:58:22.899 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
+26-01-04.00:58:22.899 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 622 ms
+26-01-04.00:58:23.628 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
+26-01-04.00:58:23.635 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
+26-01-04.00:58:23.641 [main            ] INFO  Application            - Started Application in 1.671 seconds (process running for 1.848)
+26-01-04.00:58:23.649 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Starting...
+26-01-04.00:58:23.781 [main            ] INFO  HikariPool             - Retail_HikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@2c731a16
+26-01-04.00:58:23.784 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Start completed.
+26-01-04.00:58:23.838 [http-nio-8091-exec-1] INFO  [/]                    - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-01-04.00:58:23.839 [http-nio-8091-exec-1] INFO  DispatcherServlet      - Initializing Servlet 'dispatcherServlet'
+26-01-04.00:58:23.839 [http-nio-8091-exec-1] INFO  DispatcherServlet      - Completed initialization in 0 ms
+26-01-04.01:00:00.027 [scheduling-1    ] INFO  CertificateExpiryCheckJob - 开始检查过期证书
+26-01-04.01:00:00.058 [scheduling-1    ] INFO  CertificateExpiryCheckJob - 过期证书检查完成
+26-01-04.01:13:46.992 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=4m22s969ms).
+26-01-04.02:03:53.001 [scheduling-1    ] INFO  CRLUpdateJob           - 开始更新CRL
+26-01-04.02:03:53.003 [scheduling-1    ] INFO  CRLUpdateJob           - CRL更新完成
+26-01-04.06:30:23.809 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=1h22m3s862ms).
+26-01-04.07:08:54.508 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=38m30s699ms).
+26-01-04.07:41:25.962 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=32m31s454ms).
+26-01-04.08:10:15.556 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=28m49s595ms).
+26-01-04.09:11:02.617 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=1h47s61ms).
+26-01-04.09:45:12.036 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=34m9s419ms).
+26-01-04.10:11:56.158 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=26m44s122ms).
+26-01-04.11:03:57.694 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=52m1s536ms).
+26-01-04.11:28:28.928 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=24m31s234ms).
+26-01-04.12:13:55.377 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=45m26s449ms).
+26-01-04.12:59:16.981 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=45m21s604ms).
+26-01-04.13:20:38.275 [Retail_HikariCP housekeeper] WARN  HikariPool             - Retail_HikariCP - Thread starvation or clock leap detected (housekeeper delta=21m21s294ms).
+26-01-04.13:41:28.139 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
+26-01-04.13:41:28.160 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
+26-01-04.13:41:28.216 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown initiated...
+26-01-04.13:41:33.084 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown completed.

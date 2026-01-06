@@ -38,14 +38,18 @@
             <groupId>commons-codec</groupId>
             <artifactId>commons-codec</artifactId>
         </dependency>
-        <!-- Bouncy Castle -->
+        <!-- Bouncy Castle API (仅接口定义需要) -->
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.83</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk18on</artifactId>
+            <version>1.83</version>
+            <scope>provided</scope>
         </dependency>
         <!-- 系统模块 -->
         <dependency>

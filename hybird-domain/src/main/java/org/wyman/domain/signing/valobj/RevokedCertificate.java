@@ -3,6 +3,7 @@ package org.wyman.domain.signing.valobj;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.wyman.types.enums.RevocationReason;
 
 import java.time.LocalDateTime;
 
@@ -26,5 +27,26 @@ public class RevokedCertificate {
     /**
      * 吊销原因
      */
-    private String revocationReason;
+    private RevocationReason reason;
+
+    /**
+     * 吊销原因(字符串，兼容旧代码)
+     */
+    @Deprecated
+    public String getRevocationReason() {
+        return reason != null ? reason.getDesc() : null;
+    }
+
+    @Deprecated
+    public void setRevocationReason(String reason) {
+        // 尝试从描述匹配枚举
+        if (reason != null) {
+            for (RevocationReason r : RevocationReason.values()) {
+                if (r.getDesc().equals(reason)) {
+                    this.reason = r;
+                    break;
+                }
+            }
+        }
+    }
 }
