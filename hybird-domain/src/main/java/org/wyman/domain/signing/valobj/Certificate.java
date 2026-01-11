@@ -55,9 +55,14 @@ public class Certificate {
     private String pemEncoded;
 
     /**
-     * 后量子公钥PEM
+     * 后量子公钥PEM（签名）
      */
     private String postQuantumPublicKeyPem;
+
+    /**
+     * 后量子KEM公钥PEM
+     */
+    private String postQuantumKekPublicKeyPem;
 
     /**
      * 混合证书打包(经典证书 + PQ 公钥/签名)

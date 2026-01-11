@@ -8,9 +8,14 @@ import java.security.PublicKey;
  */
 public interface IPrivateKeyProvider {
     /**
-     * 获取签名私钥
+     * 获取经典签名私钥
      */
     PrivateKey getSigningPrivateKey(String algorithm);
+
+    /**
+     * 获取备用/PQ签名私钥（用于 Catalyst 双签）
+     */
+    PrivateKey getAltSigningPrivateKey(String algorithm);
 
     /**
      * 获取对应的公钥

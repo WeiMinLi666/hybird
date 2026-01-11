@@ -1,25 +1,25 @@
-26-01-11.22:48:26.337 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
-26-01-11.22:48:26.367 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 64197 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
-26-01-11.22:48:26.368 [main            ] INFO  Application            - The following 1 profile is active: "dev"
-26-01-11.22:48:26.804 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
-26-01-11.22:48:26.805 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
-26-01-11.22:48:26.828 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 15 ms. Found 0 Redis repository interfaces.
-26-01-11.22:48:27.129 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
-26-01-11.22:48:27.135 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
-26-01-11.22:48:27.136 [main            ] INFO  StandardService        - Starting service [Tomcat]
-26-01-11.22:48:27.136 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
-26-01-11.22:48:27.164 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
-26-01-11.22:48:27.164 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 778 ms
-26-01-11.22:48:28.220 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
-26-01-11.22:48:28.227 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
-26-01-11.22:48:28.234 [main            ] INFO  Application            - Started Application in 2.218 seconds (process running for 2.481)
-26-01-11.22:48:28.243 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Starting...
-26-01-11.22:48:28.366 [http-nio-8091-exec-2] INFO  [/]                    - Initializing Spring DispatcherServlet 'dispatcherServlet'
-26-01-11.22:48:28.366 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Initializing Servlet 'dispatcherServlet'
-26-01-11.22:48:28.367 [http-nio-8091-exec-2] INFO  DispatcherServlet      - Completed initialization in 1 ms
-26-01-11.22:48:28.765 [main            ] INFO  HikariPool             - Retail_HikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@393bcd6b
-26-01-11.22:48:28.766 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Start completed.
-26-01-11.22:48:35.885 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
-26-01-11.22:48:37.895 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
-26-01-11.22:48:37.905 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown initiated...
-26-01-11.22:48:37.908 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown completed.
+26-01-12.01:27:48.053 [background-preinit] INFO  Version                - HV000001: Hibernate Validator 8.0.2.Final
+26-01-12.01:27:48.080 [main            ] INFO  Application            - Starting Application using Java 17.0.12 with PID 77884 (/Users/liweimin.wyman/Desktop/个人文件/cert/hybird/hybird-app/target/classes started by liweimin.wyman in /Users/liweimin.wyman/Desktop/个人文件/cert/hybird)
+26-01-12.01:27:48.081 [main            ] INFO  Application            - The following 1 profile is active: "dev"
+26-01-12.01:27:48.556 [main            ] INFO  RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+26-01-12.01:27:48.557 [main            ] INFO  RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+26-01-12.01:27:48.592 [main            ] INFO  RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 26 ms. Found 0 Redis repository interfaces.
+26-01-12.01:27:48.943 [main            ] INFO  TomcatWebServer        - Tomcat initialized with port 8091 (http)
+26-01-12.01:27:48.949 [main            ] INFO  Http11NioProtocol      - Initializing ProtocolHandler ["http-nio-8091"]
+26-01-12.01:27:48.949 [main            ] INFO  StandardService        - Starting service [Tomcat]
+26-01-12.01:27:48.950 [main            ] INFO  StandardEngine         - Starting Servlet engine: [Apache Tomcat/10.1.36]
+26-01-12.01:27:48.977 [main            ] INFO  [/]                    - Initializing Spring embedded WebApplicationContext
+26-01-12.01:27:48.977 [main            ] INFO  ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 872 ms
+26-01-12.01:27:50.099 [main            ] INFO  Http11NioProtocol      - Starting ProtocolHandler ["http-nio-8091"]
+26-01-12.01:27:50.107 [main            ] INFO  TomcatWebServer        - Tomcat started on port 8091 (http) with context path '/'
+26-01-12.01:27:50.113 [main            ] INFO  Application            - Started Application in 2.391 seconds (process running for 2.648)
+26-01-12.01:27:50.121 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Starting...
+26-01-12.01:27:50.526 [http-nio-8091-exec-1] INFO  [/]                    - Initializing Spring DispatcherServlet 'dispatcherServlet'
+26-01-12.01:27:50.526 [http-nio-8091-exec-1] INFO  DispatcherServlet      - Initializing Servlet 'dispatcherServlet'
+26-01-12.01:27:50.529 [http-nio-8091-exec-1] INFO  DispatcherServlet      - Completed initialization in 3 ms
+26-01-12.01:27:50.542 [main            ] INFO  HikariPool             - Retail_HikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@531299d3
+26-01-12.01:27:50.543 [main            ] INFO  HikariDataSource       - Retail_HikariCP - Start completed.
+26-01-12.01:27:56.892 [SpringApplicationShutdownHook] INFO  GracefulShutdown       - Commencing graceful shutdown. Waiting for active requests to complete
+26-01-12.01:27:58.902 [tomcat-shutdown ] INFO  GracefulShutdown       - Graceful shutdown complete
+26-01-12.01:27:58.922 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown initiated...
+26-01-12.01:27:58.928 [SpringApplicationShutdownHook] INFO  HikariDataSource       - Retail_HikariCP - Shutdown completed.

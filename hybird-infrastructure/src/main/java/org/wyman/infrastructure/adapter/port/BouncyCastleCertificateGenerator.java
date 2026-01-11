@@ -5,6 +5,7 @@ import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DERBitString;
+import org.bouncycastle.asn1.DERIA5String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
@@ -26,10 +27,12 @@ import org.wyman.types.constants.HybridCertificateOids;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 import java.security.*;
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -75,8 +78,18 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
 
         if (context != null && context.isHybridEnabled() && context.isAltSignatureRequired()) {
             byte[] tbs = certHolder.toASN1Structure().getTBSCertificate().getEncoded();
-            byte[] altSignature = computeAltSignature(tbs, issuerPrivateKey,
-                context.getAltSignatureJcaName() != null ? context.getAltSignatureJcaName() : signatureAlgorithm);
+            String altAlgorithm = context.getAltSignatureJcaName() != null ? context.getAltSignatureJcaName() : signatureAlgorithm;
+            PrivateKey altSigningKey = context.getAltSignaturePrivateKey() != null ?
+                context.getAltSignaturePrivateKey() : issuerPrivateKey;
+            byte[] altSignature = computeAltSignature(tbs, altSigningKey, altAlgorithm);
+
+            // 计算 Merkle 根（若未提供）并默认填充 Sidecar URL
+            if (context.getMerkleRoot() == null) {
+                context.setMerkleRoot(computeMerkleRoot(context, altSignature));
+            }
+            if (context.getSidecarUrl() == null) {
+                context.setSidecarUrl(defaultSidecarUrl(serialNumber));
+            }
 
             certHolder = buildCertificate(
                     issuer,
@@ -177,6 +190,22 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
             );
         }
 
+        if (context.getMerkleRoot() != null) {
+            certBuilder.addExtension(
+                    new ASN1ObjectIdentifier(HybridCertificateOids.EXT_HYBRID_MERKLE_ROOT),
+                    false,
+                    new DEROctetString(context.getMerkleRoot())
+            );
+        }
+
+        if (context.getSidecarUrl() != null) {
+            certBuilder.addExtension(
+                    new ASN1ObjectIdentifier(HybridCertificateOids.EXT_HYBRID_SIDECAR_URL),
+                    false,
+                    new DERIA5String(context.getSidecarUrl())
+            );
+        }
+
         if (context.isAltSignatureRequired() && altSignatureValue != null) {
             certBuilder.addExtension(
                     new ASN1ObjectIdentifier(HybridCertificateOids.EXT_ALT_SIGNATURE_VALUE),
@@ -186,12 +215,57 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
         }
     }
 
-    private byte[] computeAltSignature(byte[] tbs, PrivateKey issuerPrivateKey, String altAlgorithm) throws Exception {
+    private byte[] computeAltSignature(byte[] tbs, PrivateKey altSigningKey, String altAlgorithm) throws Exception {
         String signerAlgorithm = getSignerAlgorithm(altAlgorithm);
         Signature signature = Signature.getInstance(signerAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-        signature.initSign(issuerPrivateKey);
+        signature.initSign(altSigningKey);
         signature.update(tbs);
         return signature.sign();
+    }
+
+    private byte[] computeMerkleRoot(HybridCertificateRequestContext context, byte[] altSignatureValue) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        List<byte[]> leaves = new ArrayList<>();
+        leaves.add(hashLeaf(md, "pqSigPub", context.getPqSignaturePublicKeyPem() != null
+                ? context.getPqSignaturePublicKeyPem().getBytes(StandardCharsets.UTF_8)
+                : new byte[0]));
+        leaves.add(hashLeaf(md, "pqKekPub", context.getPqKekPublicKeyPem() != null
+                ? context.getPqKekPublicKeyPem().getBytes(StandardCharsets.UTF_8)
+                : new byte[0]));
+        leaves.add(hashLeaf(md, "altSigValue", altSignatureValue != null ? altSignatureValue : new byte[0]));
+        leaves.add(hashLeaf(md, "altSigAlg", context.getAltSignatureJcaName() != null
+                ? context.getAltSignatureJcaName().getBytes(StandardCharsets.UTF_8)
+                : new byte[0]));
+
+        List<byte[]> level = leaves;
+        while (level.size() > 1) {
+            List<byte[]> next = new ArrayList<>();
+            for (int i = 0; i < level.size(); i += 2) {
+                byte[] left = level.get(i);
+                byte[] right = (i + 1 < level.size()) ? level.get(i + 1) : left;
+                md.reset();
+                md.update(left);
+                md.update(right);
+                next.add(md.digest());
+            }
+            level = next;
+        }
+        return level.get(0);
+    }
+
+    private byte[] hashLeaf(MessageDigest md, String label, byte[] value) {
+        md.reset();
+        byte[] labelBytes = label.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer lenBuf = ByteBuffer.allocate(4).putInt(value.length);
+        md.update(labelBytes);
+        md.update((byte) 0x00);
+        md.update(lenBuf.array());
+        md.update(value);
+        return md.digest();
+    }
+
+    private String defaultSidecarUrl(BigInteger serialNumber) {
+        return "https://ca.example.com/sidecar/" + serialNumber.toString() + ".json";
     }
 
     @Override
@@ -296,6 +370,12 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
      * 获取签名算法标识
      */
     private String getSignerAlgorithm(String signatureAlgorithm) {
+        if (signatureAlgorithm == null) {
+            return "SHA256withRSA";
+        }
+        if (signatureAlgorithm.toLowerCase().contains("with")) {
+            return signatureAlgorithm;
+        }
         switch (signatureAlgorithm) {
             case "SM2":
                 return "SM3withSM2";

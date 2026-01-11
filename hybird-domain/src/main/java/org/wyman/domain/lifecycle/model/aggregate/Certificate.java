@@ -79,9 +79,14 @@ public class Certificate {
     private String postQuantumCsrPem;
 
     /**
-     * 后量子公钥PEM
+     * 后量子公钥PEM（签名用途）
      */
     private String postQuantumPublicKeyPem;
+
+    /**
+     * 后量子KEM公钥PEM（加密用途）
+     */
+    private String postQuantumKekPublicKeyPem;
 
     /**
      * 吊销信息

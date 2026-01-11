@@ -20,6 +20,10 @@ public class MockPrivateKeyProvider implements IPrivateKeyProvider {
     private final KeyPair sm2KeyPair;
     private final KeyPair rsaKeyPair;
     private final KeyPair ecdsaKeyPair;
+    /**
+     * 用于模拟 PQC 签名的独立密钥对（占位实现，用 RSA 代替）
+     */
+    private final KeyPair pqcAltSignKeyPair;
 
     static {
         // 注册 Bouncy Castle 提供者
@@ -44,6 +48,11 @@ public class MockPrivateKeyProvider implements IPrivateKeyProvider {
             KeyPairGenerator ecdsaKpg = KeyPairGenerator.getInstance("EC");
             ecdsaKpg.initialize(new ECGenParameterSpec("secp256r1"));
             this.ecdsaKeyPair = ecdsaKpg.generateKeyPair();
+
+            // 占位的 PQC 签名密钥对（可替换为实际 PQ 算法提供方）
+            KeyPairGenerator pqcKpg = KeyPairGenerator.getInstance("RSA");
+            pqcKpg.initialize(3072);
+            this.pqcAltSignKeyPair = pqcKpg.generateKeyPair();
         } catch (Exception e) {
             throw new RuntimeException("初始化密钥对失败", e);
         }
@@ -61,6 +70,11 @@ public class MockPrivateKeyProvider implements IPrivateKeyProvider {
         throw new IllegalArgumentException("不支持的算法: " + algorithm);
     }
 
+    @Override
+    public PrivateKey getAltSigningPrivateKey(String algorithm) {
+        // 此处返回独立的“PQC”私钥，占位用 RSA。生产中请接入真实 PQC/HSM。
+        return pqcAltSignKeyPair.getPrivate();
+    }
 
     @Override
     public PublicKey getPublicKey(String algorithm) {

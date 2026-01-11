@@ -87,6 +87,15 @@ public class CertificateAuthority {
         try {
             // 获取CA私钥
             java.security.PrivateKey caPrivateKey = keyProvider.getSigningPrivateKey(signatureAlgorithm);
+            if (hybridContext != null && hybridContext.isAltSignatureRequired()) {
+                if (hybridContext.getAltSignatureJcaName() == null) {
+                    hybridContext.setAltSignatureJcaName(signatureAlgorithm);
+                }
+                if (hybridContext.getAltSignaturePrivateKey() == null) {
+                    String altAlg = hybridContext.getAltSignatureJcaName();
+                    hybridContext.setAltSignaturePrivateKey(keyProvider.getAltSigningPrivateKey(altAlg));
+                }
+            }
 
             // 解析DN
             org.bouncycastle.asn1.x500.X500Name issuerX500Name =
@@ -131,6 +140,7 @@ public class CertificateAuthority {
 
             if (hybridContext != null && hybridContext.isHybridEnabled()) {
                 cert.setPostQuantumPublicKeyPem(hybridContext.getPqSignaturePublicKeyPem());
+                cert.setPostQuantumKekPublicKeyPem(hybridContext.getPqKekPublicKeyPem());
             }
 
             return cert;

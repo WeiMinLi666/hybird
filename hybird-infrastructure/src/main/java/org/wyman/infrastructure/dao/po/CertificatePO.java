@@ -71,9 +71,14 @@ public class CertificatePO {
     private String postQuantumCsrPem;
 
     /**
-     * 后量子公钥PEM
+     * 后量子公钥PEM（签名）
      */
     private String postQuantumPublicKeyPem;
+
+    /**
+     * 后量子KEM公钥PEM（加密）
+     */
+    private String postQuantumKekPublicKeyPem;
 
     /**
      * 吊销原因

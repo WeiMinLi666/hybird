@@ -15,6 +15,7 @@
         <result column="pem_encoded" property="pemEncoded" jdbcType="LONGVARCHAR"/>
         <result column="post_quantum_csr_pem" property="postQuantumCsrPem" jdbcType="LONGVARCHAR"/>
         <result column="post_quantum_public_key_pem" property="postQuantumPublicKeyPem" jdbcType="LONGVARCHAR"/>
+        <result column="post_quantum_kek_public_key_pem" property="postQuantumKekPublicKeyPem" jdbcType="LONGVARCHAR"/>
         <result column="revocation_reason" property="revocationReason" jdbcType="VARCHAR"/>
         <result column="revoked_by" property="revokedBy" jdbcType="VARCHAR"/>
         <result column="revocation_comments" property="revocationComments" jdbcType="VARCHAR"/>
@@ -26,7 +27,7 @@
     <sql id="Base_Column_List">
         serial_number, certificate_type, subject_dn, issuer_dn, status,
         not_before, not_after, applicant_id, issuance_request_id, pem_encoded,
-        post_quantum_csr_pem, post_quantum_public_key_pem,
+        post_quantum_csr_pem, post_quantum_public_key_pem, post_quantum_kek_public_key_pem,
         revocation_reason, revoked_by, revocation_comments, renewal_notice_days,
         create_time, update_time
     </sql>
@@ -35,13 +36,13 @@
         INSERT INTO certificate (
             serial_number, certificate_type, subject_dn, issuer_dn, status,
             not_before, not_after, applicant_id, issuance_request_id, pem_encoded,
-            post_quantum_csr_pem, post_quantum_public_key_pem,
+            post_quantum_csr_pem, post_quantum_public_key_pem, post_quantum_kek_public_key_pem,
             renewal_notice_days, create_time, update_time
         ) VALUES (
             #{serialNumber,jdbcType=VARCHAR}, #{certificateType,jdbcType=VARCHAR}, #{subjectDn,jdbcType=VARCHAR},
             #{issuerDn,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{notBefore,jdbcType=TIMESTAMP},
             #{notAfter,jdbcType=TIMESTAMP}, #{applicantId,jdbcType=VARCHAR}, #{issuanceRequestId,jdbcType=VARCHAR},
-            #{pemEncoded,jdbcType=LONGVARCHAR}, #{postQuantumCsrPem,jdbcType=LONGVARCHAR}, #{postQuantumPublicKeyPem,jdbcType=LONGVARCHAR},
+            #{pemEncoded,jdbcType=LONGVARCHAR}, #{postQuantumCsrPem,jdbcType=LONGVARCHAR}, #{postQuantumPublicKeyPem,jdbcType=LONGVARCHAR}, #{postQuantumKekPublicKeyPem,jdbcType=LONGVARCHAR},
             #{renewalNoticeDays,jdbcType=INTEGER},
             #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
         )
@@ -55,6 +56,7 @@
             pem_encoded = #{pemEncoded,jdbcType=LONGVARCHAR},
             post_quantum_csr_pem = #{postQuantumCsrPem,jdbcType=LONGVARCHAR},
             post_quantum_public_key_pem = #{postQuantumPublicKeyPem,jdbcType=LONGVARCHAR},
+            post_quantum_kek_public_key_pem = #{postQuantumKekPublicKeyPem,jdbcType=LONGVARCHAR},
             update_time = #{updateTime,jdbcType=TIMESTAMP}
         WHERE serial_number = #{serialNumber,jdbcType=VARCHAR}
     </update>

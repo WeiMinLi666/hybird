@@ -262,6 +262,7 @@ public class CertificateController {
             certificate.setPemEncoded(cert.getPemEncoded());
             certificate.setPostQuantumCsrPem(request.getPostQuantumCsrPemData());
             certificate.setPostQuantumPublicKeyPem(pqSignaturePublicKeyPem);
+            certificate.setPostQuantumKekPublicKeyPem(pqKekPublicKeyPem);
             certificate.setIssuanceRequestId(authRequest.getRequestId());
             certificate.activate();
 
