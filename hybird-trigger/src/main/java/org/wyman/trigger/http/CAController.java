@@ -87,7 +87,7 @@ public class CAController {
     }
 
     /**
-     * 查询CA详情
+     * 查询CA详情（路径参数）
      */
     @GetMapping("/{caId}")
     public Response<CAQueryResponse> getCA(@PathVariable String caId) {
@@ -112,6 +112,14 @@ public class CAController {
             log.error("查询CA详情失败", e);
             return Response.fail(e.getMessage());
         }
+    }
+
+    /**
+     * 查询CA详情（query 参数），兼容测试脚本
+     */
+    @GetMapping("/detail")
+    public Response<CAQueryResponse> getCADetail(@RequestParam String caId) {
+        return getCA(caId);
     }
 
     /**

@@ -3,6 +3,9 @@ package org.wyman.infrastructure.adapter.port;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Integer;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.DERBitString;
+import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -17,9 +20,12 @@ import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.springframework.stereotype.Component;
 import org.wyman.domain.signing.adapter.port.ICertificateGenerator;
+import org.wyman.domain.signing.valobj.HybridCertificateRequestContext;
 import org.wyman.domain.signing.valobj.RevokedCertificate;
+import org.wyman.types.constants.HybridCertificateOids;
 
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CRLException;
 import java.security.cert.X509CRL;
@@ -49,7 +55,61 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
             Date notAfter,
             BigInteger serialNumber,
             String signatureAlgorithm,
-            String crlDistributionPoint
+            String crlDistributionPoint,
+            HybridCertificateRequestContext hybridContext
+    ) throws Exception {
+        HybridCertificateRequestContext context = hybridContext;
+        X509CertificateHolder certHolder = buildCertificate(
+                issuer,
+                subject,
+                publicKey,
+                issuerPrivateKey,
+                notBefore,
+                notAfter,
+                serialNumber,
+                signatureAlgorithm,
+                crlDistributionPoint,
+                context,
+                null
+        );
+
+        if (context != null && context.isHybridEnabled() && context.isAltSignatureRequired()) {
+            byte[] tbs = certHolder.toASN1Structure().getTBSCertificate().getEncoded();
+            byte[] altSignature = computeAltSignature(tbs, issuerPrivateKey,
+                context.getAltSignatureJcaName() != null ? context.getAltSignatureJcaName() : signatureAlgorithm);
+
+            certHolder = buildCertificate(
+                    issuer,
+                    subject,
+                    publicKey,
+                    issuerPrivateKey,
+                    notBefore,
+                    notAfter,
+                    serialNumber,
+                    signatureAlgorithm,
+                    crlDistributionPoint,
+                    context,
+                    altSignature
+            );
+        }
+
+        return new JcaX509CertificateConverter()
+                .setProvider(BouncyCastleProvider.PROVIDER_NAME)
+                .getCertificate(certHolder);
+    }
+
+    private X509CertificateHolder buildCertificate(
+            X500Name issuer,
+            X500Name subject,
+            PublicKey publicKey,
+            PrivateKey issuerPrivateKey,
+            Date notBefore,
+            Date notAfter,
+            BigInteger serialNumber,
+            String signatureAlgorithm,
+            String crlDistributionPoint,
+            HybridCertificateRequestContext context,
+            byte[] altSignatureValue
     ) throws Exception {
         X509v3CertificateBuilder certBuilder = new X509v3CertificateBuilder(
                 issuer,
@@ -60,7 +120,6 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
                 SubjectPublicKeyInfo.getInstance(publicKey.getEncoded())
         );
 
-        // 添加CRL分发点扩展
         if (crlDistributionPoint != null) {
             DistributionPointName dpn = new DistributionPointName(
                     new GeneralNames(new GeneralName(GeneralName.uniformResourceIdentifier, crlDistributionPoint))
@@ -69,12 +128,12 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
                     new CRLDistPoint(new DistributionPoint[]{new DistributionPoint(dpn, null, null)}));
         }
 
-        // 添加密钥用法扩展
         certBuilder.addExtension(Extension.keyUsage, true,
-                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.keyCertSign));
+                new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
 
-        // 添加基本约束扩展(非CA)
         certBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(false));
+
+        addHybridExtensions(certBuilder, context, altSignatureValue);
 
         String signerAlgorithm = getSignerAlgorithm(signatureAlgorithm);
 
@@ -82,10 +141,57 @@ public class BouncyCastleCertificateGenerator implements ICertificateGenerator {
                 .setProvider(BouncyCastleProvider.PROVIDER_NAME)
                 .build(issuerPrivateKey);
 
-        X509CertificateHolder certHolder = certBuilder.build(signer);
-        return new JcaX509CertificateConverter()
-                .setProvider(BouncyCastleProvider.PROVIDER_NAME)
-                .getCertificate(certHolder);
+        return certBuilder.build(signer);
+    }
+
+    private void addHybridExtensions(X509v3CertificateBuilder certBuilder,
+                                     HybridCertificateRequestContext context,
+                                     byte[] altSignatureValue) throws Exception {
+        if (context == null || !context.isHybridEnabled()) {
+            return;
+        }
+
+        if (context.getPqSignaturePublicKeyPem() != null) {
+            certBuilder.addExtension(
+                    new ASN1ObjectIdentifier(HybridCertificateOids.EXT_PQC_SIGNATURE_PUBLIC_KEY_INFO),
+                    false,
+                    new DEROctetString(context.getPqSignaturePublicKeyPem().getBytes(StandardCharsets.UTF_8))
+            );
+        }
+
+        if (context.getPqKekPublicKeyPem() != null) {
+            certBuilder.addExtension(
+                    new ASN1ObjectIdentifier(HybridCertificateOids.EXT_PQC_KEK_DISTRIBUTION_KEY_INFO),
+                    false,
+                    new DEROctetString(context.getPqKekPublicKeyPem().getBytes(StandardCharsets.UTF_8))
+            );
+        }
+
+        if (context.getAltSignatureAlgorithmOid() != null) {
+            AlgorithmIdentifier altAlg = new AlgorithmIdentifier(
+                    new ASN1ObjectIdentifier(context.getAltSignatureAlgorithmOid()));
+            certBuilder.addExtension(
+                    new ASN1ObjectIdentifier(HybridCertificateOids.EXT_ALT_SIGNATURE_ALGORITHM),
+                    false,
+                    altAlg
+            );
+        }
+
+        if (context.isAltSignatureRequired() && altSignatureValue != null) {
+            certBuilder.addExtension(
+                    new ASN1ObjectIdentifier(HybridCertificateOids.EXT_ALT_SIGNATURE_VALUE),
+                    false,
+                    new DERBitString(altSignatureValue)
+            );
+        }
+    }
+
+    private byte[] computeAltSignature(byte[] tbs, PrivateKey issuerPrivateKey, String altAlgorithm) throws Exception {
+        String signerAlgorithm = getSignerAlgorithm(altAlgorithm);
+        Signature signature = Signature.getInstance(signerAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
+        signature.initSign(issuerPrivateKey);
+        signature.update(tbs);
+        return signature.sign();
     }
 
     @Override

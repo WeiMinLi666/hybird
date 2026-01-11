@@ -16,4 +16,31 @@ public enum CertificateType {
 
     private final String code;
     private final String desc;
+
+    public static CertificateType from(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("证书类型不能为空");
+        }
+        String upper = value.trim().toUpperCase();
+        // 支持 code / name / 常见别名
+        for (CertificateType type : values()) {
+            if (type.name().equals(upper) || type.code.equals(upper)) {
+                return type;
+            }
+        }
+        switch (upper) {
+            case "DEVICE":
+                return DEVICE_CERT;
+            case "PLATFORM":
+                return PLATFORM_CERT;
+            case "CA":
+            case "ROOT":
+                return CA_CERT;
+            case "INTERMEDIATE":
+            case "SUBCA":
+                return INTERMEDIATE_CERT;
+            default:
+                throw new IllegalArgumentException("不支持的证书类型: " + value);
+        }
+    }
 }

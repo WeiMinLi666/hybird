@@ -45,6 +45,26 @@ public class CertificateSigningRequest {
     private Map<String, String> extensions;
 
     /**
+     * PQC签名公钥(PEM)
+     */
+    private String pqSignaturePublicKeyPem;
+
+    /**
+     * PQC KEM公钥(PEM)
+     */
+    private String pqKekPublicKeyPem;
+
+    /**
+     * PQC签名值(来自CSR属性)
+     */
+    private byte[] pqSignatureValue;
+
+    /**
+     * PQC KEM持有证明
+     */
+    private byte[] pqKekProofValue;
+
+    /**
      * 签名验证是否通过
      */
     private boolean signatureValid;

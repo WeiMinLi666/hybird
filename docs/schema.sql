@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS `certificate` (
   `applicant_id` varchar(64) NOT NULL COMMENT '申请者ID',
   `issuance_request_id` varchar(64) DEFAULT NULL COMMENT '签发请求ID',
   `pem_encoded` longtext COMMENT '证书PEM编码',
+  `post_quantum_csr_pem` longtext DEFAULT NULL COMMENT '后量子CSR（PEM）',
+  `post_quantum_public_key_pem` longtext DEFAULT NULL COMMENT '后量子公钥PEM',
   `revocation_reason` varchar(255) DEFAULT NULL COMMENT '吊销原因',
   `revoked_by` varchar(64) DEFAULT NULL COMMENT '吊销操作人',
   `revocation_comments` varchar(512) DEFAULT NULL COMMENT '吊销备注',

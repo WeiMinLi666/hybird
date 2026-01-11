@@ -84,6 +84,8 @@ public class CertificateRepository implements ICertificateRepository {
                 .applicantId(certificate.getApplicantId())
                 .issuanceRequestId(certificate.getIssuanceRequestId())
                 .pemEncoded(certificate.getPemEncoded())
+                .postQuantumCsrPem(certificate.getPostQuantumCsrPem())
+                .postQuantumPublicKeyPem(certificate.getPostQuantumPublicKeyPem())
                 .renewalNoticeDays(certificate.getNotificationPolicy() != null ?
                         certificate.getNotificationPolicy().getExpiryNotificationDays() : 30)
                 .createTime(certificate.getCreateTime() != null ? certificate.getCreateTime() : LocalDateTime.now())
@@ -115,6 +117,8 @@ public class CertificateRepository implements ICertificateRepository {
         certificate.setApplicantId(po.getApplicantId());
         certificate.setIssuanceRequestId(po.getIssuanceRequestId());
         certificate.setPemEncoded(po.getPemEncoded());
+        certificate.setPostQuantumCsrPem(po.getPostQuantumCsrPem());
+        certificate.setPostQuantumPublicKeyPem(po.getPostQuantumPublicKeyPem());
         certificate.setCreateTime(po.getCreateTime());
         certificate.setUpdateTime(po.getUpdateTime());
 

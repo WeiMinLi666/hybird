@@ -1,6 +1,7 @@
 package org.wyman.domain.signing.adapter.port;
 
 import org.bouncycastle.asn1.x500.X500Name;
+import org.wyman.domain.signing.valobj.HybridCertificateRequestContext;
 import org.wyman.domain.signing.valobj.RevokedCertificate;
 
 import java.math.BigInteger;
@@ -32,7 +33,8 @@ public interface ICertificateGenerator {
             Date notAfter,
             BigInteger serialNumber,
             String signatureAlgorithm,
-            String crlDistributionPoint
+            String crlDistributionPoint,
+            HybridCertificateRequestContext hybridContext
     ) throws Exception;
 
     /**

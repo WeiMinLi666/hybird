@@ -74,6 +74,16 @@ public class Certificate {
     private String pemEncoded;
 
     /**
+     * 后量子CSR（原始PEM）
+     */
+    private String postQuantumCsrPem;
+
+    /**
+     * 后量子公钥PEM
+     */
+    private String postQuantumPublicKeyPem;
+
+    /**
      * 吊销信息
      */
     private RevocationInfo revocationInfo;

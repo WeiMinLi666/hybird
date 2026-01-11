@@ -14,7 +14,9 @@ import org.wyman.domain.lifecycle.model.aggregate.Certificate;
 import org.wyman.domain.lifecycle.service.CertificateLifecycleService;
 import org.wyman.domain.policy.service.PolicyService;
 import org.wyman.domain.signing.service.SigningService;
+import org.wyman.domain.signing.valobj.HybridCertificateRequestContext;
 import org.wyman.domain.status.service.RevocationStatusService;
+import org.wyman.types.constants.HybridCertificateOids;
 import org.wyman.types.enums.CertificateType;
 import org.wyman.types.enums.RevocationReason;
 
@@ -89,7 +91,12 @@ public class CertificateController {
             }
 
             // 4. 获取策略
-            CertificateType certType = CertificateType.valueOf(request.getCertificateType());
+            CertificateType certType;
+            try {
+                certType = CertificateType.from(request.getCertificateType());
+            } catch (IllegalArgumentException ex) {
+                return Response.fail(ex.getMessage());
+            }
             var policy = policyService.getPolicyForCertificateType(certType);
             if (policy == null) {
                 return Response.fail("未找到可用的证书策略");
@@ -116,6 +123,7 @@ public class CertificateController {
                 LocalDateTime.now(),
                 request.getNotAfter(),
                 signatureAlgorithm,
+                null,
                 null
             );
 
@@ -159,21 +167,148 @@ public class CertificateController {
     @PostMapping("/apply/hybrid")
     public Response<CertificateIssuanceResponse> applyHybridCertificate(@RequestBody HybridCertificateApplyRequest request) {
         try {
-            // 简化实现:直接调用普通证书申请
-            CertificateApplyRequest applyRequest = new CertificateApplyRequest();
-            applyRequest.setApplicantId(request.getApplicantId());
-            applyRequest.setApplicantName(request.getApplicantName());
-            applyRequest.setApplicantEmail(request.getApplicantEmail());
-            applyRequest.setIdToken(request.getIdToken());
-            applyRequest.setCsrPemData(request.getClassicalCsrPemData());
-            applyRequest.setCertificateType("HYBRID");
-            applyRequest.setNotAfter(request.getNotAfter());
-            applyRequest.setCaName(request.getCaName());
+            // 1. 解析并校验两个CSR
+            CertificateSigningRequest classicalCsr = csrParser.parsePEM(request.getClassicalCsrPemData());
+            if (!classicalCsr.isSignatureValid()) {
+                return Response.fail("传统算法CSR签名验证失败");
+            }
+            CertificateSigningRequest pqCsr = csrParser.parsePEM(request.getPostQuantumCsrPemData());
+            if (!pqCsr.isSignatureValid()) {
+                return Response.fail("后量子算法CSR签名验证失败");
+            }
 
-            return applyCertificate(applyRequest);
+            if (!classicalCsr.getSubjectDN().equals(pqCsr.getSubjectDN())) {
+                return Response.fail("两份CSR的Subject DN不一致，无法签发混合证书");
+            }
+
+            // 2. 申请者与身份验证
+            Applicant applicant = new Applicant(
+                request.getApplicantId(),
+                request.getApplicantName()
+            );
+            applicant.setEmail(request.getApplicantEmail());
+
+            AuthenticationRequest authRequest = authenticationService.processAuthentication(
+                java.util.UUID.randomUUID().toString(),
+                request.getApplicantId(),
+                request.getIdToken(),
+                request.getClassicalCsrPemData()
+            );
+
+            if (authRequest.getStatus() != org.wyman.types.enums.AuthRequestStatus.VALIDATION_SUCCESSFUL) {
+                return Response.fail("身份验证失败: " + authRequest.getFailureReason());
+            }
+
+            // 3. 策略校验（要求混合签名）
+            CertificateType certType = CertificateType.DEVICE_CERT;
+            var policy = policyService.getPolicyForCertificateType(certType);
+            if (policy == null) {
+                return Response.fail("未找到可用的证书策略");
+            }
+            if (!policy.requiresHybridSignature()) {
+                return Response.fail("当前策略未开启混合签名要求");
+            }
+
+            String signatureAlgorithm = request.getSignatureAlgorithm() != null
+                ? request.getSignatureAlgorithm()
+                : classicalCsr.getPublicKeyAlgorithm();
+
+            if (!policy.validateCryptographicParameters(signatureAlgorithm, request.getKemAlgorithm())) {
+                return Response.fail("签名/密钥封装算法不符合策略要求");
+            }
+
+            if (!policy.validateSubjectDN(classicalCsr.getSubjectDN())) {
+                return Response.fail("Subject DN 不符合策略要求");
+            }
+
+            if (!policy.validateValidityPeriod(LocalDateTime.now(), request.getNotAfter())) {
+                return Response.fail("证书有效期不符合策略要求");
+            }
+
+            String pqSignaturePublicKeyPem = resolvePqPublicKeyPem(pqCsr);
+            String pqKekPublicKeyPem = resolvePqKekPublicKeyPem(pqCsr, pqSignaturePublicKeyPem);
+
+            HybridCertificateRequestContext hybridContext = HybridCertificateRequestContext.builder()
+                .hybridEnabled(true)
+                .pqSignaturePublicKeyPem(pqSignaturePublicKeyPem)
+                .pqKekPublicKeyPem(pqKekPublicKeyPem)
+                .applicantPqSignatureValue(pqCsr.getPqSignatureValue())
+                .applicantKekProof(pqCsr.getPqKekProofValue())
+                .altSignatureAlgorithmOid(HybridCertificateOids.EXT_ALT_SIGNATURE_ALGORITHM)
+                .altSignatureJcaName(signatureAlgorithm)
+                .altSignatureRequired(true)
+                .build();
+
+            org.wyman.domain.signing.valobj.Certificate cert = signingService.issueCertificate(
+                request.getCaName(),
+                classicalCsr.getSubjectDN(),
+                classicalCsr.getPublicKey(),
+                LocalDateTime.now(),
+                request.getNotAfter(),
+                signatureAlgorithm,
+                request.getKemAlgorithm(),
+                hybridContext
+            );
+
+            Certificate certificate = new Certificate(
+                cert.getSerialNumber(),
+                certType,
+                cert.getSubjectDN(),
+                cert.getIssuerDN(),
+                cert.getNotBefore(),
+                cert.getNotAfter(),
+                request.getApplicantId()
+            );
+            certificate.setPemEncoded(cert.getPemEncoded());
+            certificate.setPostQuantumCsrPem(request.getPostQuantumCsrPemData());
+            certificate.setPostQuantumPublicKeyPem(pqSignaturePublicKeyPem);
+            certificate.setIssuanceRequestId(authRequest.getRequestId());
+            certificate.activate();
+
+            lifecycleService.saveCertificate(certificate);
+
+            // 5. 响应
+            CertificateIssuanceResponse response = new CertificateIssuanceResponse();
+            response.setSerialNumber(cert.getSerialNumber());
+            response.setCertificatePem(cert.getPemEncoded());
+            response.setSubjectDN(cert.getSubjectDN());
+            response.setIssuerDN(cert.getIssuerDN());
+            response.setNotBefore(cert.getNotBefore().toString());
+            response.setNotAfter(cert.getNotAfter().toString());
+            response.setSignatureAlgorithm(cert.getSignatureAlgorithm());
+            response.setCrlDistributionPoint(cert.getCrlDistributionPoint());
+
+            // 可选：在响应中附带后量子公钥以便客户端存档
+            // response.setPostQuantumPublicKeyPem(toPublicKeyPem(pqCsr.getPublicKey()));
+
+            return Response.success(response);
         } catch (Exception e) {
             log.error("申请混合证书失败", e);
             return Response.fail(e.getMessage());
+        }
+    }
+
+    private String resolvePqPublicKeyPem(CertificateSigningRequest pqCsr) {
+        if (pqCsr.getPqSignaturePublicKeyPem() != null && !pqCsr.getPqSignaturePublicKeyPem().isBlank()) {
+            return pqCsr.getPqSignaturePublicKeyPem();
+        }
+        return toPublicKeyPem(pqCsr.getPublicKey());
+    }
+
+    private String resolvePqKekPublicKeyPem(CertificateSigningRequest pqCsr, String fallback) {
+        if (pqCsr.getPqKekPublicKeyPem() != null && !pqCsr.getPqKekPublicKeyPem().isBlank()) {
+            return pqCsr.getPqKekPublicKeyPem();
+        }
+        return fallback;
+    }
+
+    private String toPublicKeyPem(java.security.PublicKey publicKey) {
+        try {
+            String base64 = java.util.Base64.getMimeEncoder(64, "\n".getBytes())
+                .encodeToString(publicKey.getEncoded());
+            return "-----BEGIN PUBLIC KEY-----\n" + base64 + "\n-----END PUBLIC KEY-----";
+        } catch (Exception e) {
+            throw new RuntimeException("公钥转PEM失败", e);
         }
     }
 
@@ -307,20 +442,23 @@ public class CertificateController {
             // 2. 标记原证书为待续期
             lifecycleService.markCertificateForRenewal(request.getOldSerialNumber());
 
-            // 3. 创建新CSR
-            CertificateSigningRequest csr = new CertificateSigningRequest();
-            csr.setCsrData(request.getCsrPemData());
-            csr.setSubjectDN(oldCert.getSubjectDN());
-            csr.setPublicKeyAlgorithm("SM2");
+            // 3. 解析CSR并校验签名
+            CertificateSigningRequest csr = csrParser.parsePEM(request.getCsrPemData());
+            if (!csr.isSignatureValid()) {
+                return Response.fail("CSR签名验证失败");
+            }
+
+            String signatureAlgorithm = csr.getPublicKeyAlgorithm();
 
             // 4. 签发新证书
             org.wyman.domain.signing.valobj.Certificate newCert = signingService.issueCertificate(
                 oldCert.getIssuerDN(),
-                oldCert.getSubjectDN(),
-                null,
+                csr.getSubjectDN(),
+                csr.getPublicKey(),
                 LocalDateTime.now(),
                 request.getNotAfter(),
-                "SM2",
+                signatureAlgorithm,
+                null,
                 null
             );
 
@@ -363,15 +501,24 @@ public class CertificateController {
     @PostMapping("/issue")
     public Response<CertificateIssuanceResponse> issueCertificate(@RequestBody CertificateIssuanceRequest request) {
         try {
-            // 简化实现,实际需要从请求中提取公钥等参数
+            CertificateSigningRequest csr = csrParser.parsePEM(request.getCsrPemData());
+            if (!csr.isSignatureValid()) {
+                return Response.fail("CSR签名验证失败");
+            }
+
+            String signatureAlgorithm = request.getSignatureAlgorithm() != null
+                ? request.getSignatureAlgorithm()
+                : csr.getPublicKeyAlgorithm();
+
             org.wyman.domain.signing.valobj.Certificate certificate = signingService.issueCertificate(
                 request.getCaName(),
-                "CN=" + request.getApplicantId(),
-                null,
+                csr.getSubjectDN(),
+                csr.getPublicKey(),
                 request.getNotBefore() != null ? request.getNotBefore() : LocalDateTime.now(),
                 request.getNotAfter(),
-                request.getSignatureAlgorithm(),
-                request.getKemAlgorithm()
+                signatureAlgorithm,
+                request.getKemAlgorithm(),
+                null
             );
 
             CertificateIssuanceResponse response = new CertificateIssuanceResponse();
@@ -467,6 +614,27 @@ public class CertificateController {
                 revokedList,
                 request.getSignatureAlgorithm()
             );
+
+            // 同步更新吊销状态缓存
+            String issuerDN = revokedCerts.isEmpty() ? request.getCaName() : revokedCerts.get(0).getIssuerDN();
+            java.util.List<org.wyman.domain.status.model.aggregate.RevocationStatusCache.RevocationDetail> revokedDetails = revokedCerts.stream()
+                .filter(cert -> cert.getRevocationInfo() != null)
+                .map(cert -> new org.wyman.domain.status.model.aggregate.RevocationStatusCache.RevocationDetail(
+                    cert.getSerialNumber(),
+                    cert.getRevocationInfo().getRevocationTime(),
+                    cert.getRevocationInfo().getRevocationReason()
+                ))
+                .toList();
+
+            org.wyman.domain.status.valobj.CRLMetadata metadata = new org.wyman.domain.status.valobj.CRLMetadata(
+                String.valueOf(crl.getCrlNumber()),
+                issuerDN,
+                crl.getThisUpdate(),
+                crl.getNextUpdate(),
+                "http://crl.example.com/crl-" + crl.getCrlNumber() + ".crl",
+                revokedCerts.size()
+            );
+            revocationStatusService.updateCacheFromCRL(metadata, revokedDetails);
 
             CRLGenerateResponse response = new CRLGenerateResponse();
             response.setCrlNumber(crl.getCrlNumber());

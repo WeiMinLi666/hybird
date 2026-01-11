@@ -4,11 +4,14 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.wyman.domain.policy.service.PolicyService;
 import org.wyman.domain.signing.adapter.port.ICertificateAuthorityRepository;
+import org.wyman.domain.signing.adapter.port.ICertificateGenerator;
 import org.wyman.domain.signing.model.aggregate.CertificateAuthority;
 import org.wyman.domain.signing.valobj.Certificate;
 import org.wyman.types.enums.CertificateType;
 
+import java.security.KeyPair;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 数据初始化器
@@ -18,11 +21,14 @@ public class DataInitializer implements CommandLineRunner {
 
     private final PolicyService policyService;
     private final ICertificateAuthorityRepository caRepository;
+    private final ICertificateGenerator certificateGenerator;
 
     public DataInitializer(PolicyService policyService,
-                          ICertificateAuthorityRepository caRepository) {
+                          ICertificateAuthorityRepository caRepository,
+                          ICertificateGenerator certificateGenerator) {
         this.policyService = policyService;
         this.caRepository = caRepository;
+        this.certificateGenerator = certificateGenerator;
     }
 
     @Override
@@ -70,25 +76,61 @@ public class DataInitializer implements CommandLineRunner {
         System.out.println("初始化默认CA...");
 
         try {
-            Certificate caCert = new Certificate();
-            caCert.setSerialNumber("1");
-            caCert.setSubjectDN("CN=Root CA,O=Hybrid Certificate System");
-            caCert.setIssuerDN("CN=Root CA,O=Hybrid Certificate System");
-            caCert.setNotBefore(LocalDateTime.now());
-            caCert.setNotAfter(LocalDateTime.now().plusYears(10));
-            caCert.setSignatureAlgorithm("SM2");
-            caCert.setPemEncoded("MOCK_CA_CERTIFICATE");
+            // 检查是否已存在CA
+            var existingCA = caRepository.findByName("RootCA");
+            if (existingCA != null && existingCA.getCaCertificate() != null
+                && existingCA.getCaCertificate().getPemEncoded() != null
+                && !existingCA.getCaCertificate().getPemEncoded().isEmpty()
+                && !existingCA.getCaCertificate().getPemEncoded().equals("MOCK_CA_CERTIFICATE")) {
+                System.out.println("CA已存在且有效,跳过创建: " + existingCA.getCaName());
+                return;
+            }
 
+            System.out.println("生成真实的CA证书...");
+
+            // 生成CA密钥对
+            KeyPair caKeyPair = certificateGenerator.generateKeyPair("SM2");
+
+            // 计算有效期
+            LocalDateTime notBefore = LocalDateTime.now();
+            LocalDateTime notAfter = notBefore.plusYears(10);
+            Date notBeforeDate = Date.from(notBefore.atZone(java.time.ZoneId.systemDefault()).toInstant());
+            Date notAfterDate = Date.from(notAfter.atZone(java.time.ZoneId.systemDefault()).toInstant());
+
+            // 解析DN
+            org.bouncycastle.asn1.x500.X500Name x500Name =
+                new org.bouncycastle.asn1.x500.X500Name("CN=Root CA,O=Hybrid Certificate System,C=CN");
+
+            // 生成CA自签名证书
+            java.security.cert.X509Certificate x509CACert = certificateGenerator.generateCACertificate(
+                x500Name,
+                caKeyPair,
+                notBeforeDate,
+                notAfterDate,
+                java.math.BigInteger.valueOf(1),
+                "SM2",
+                "http://crl.example.com/ca.crl"
+            );
+
+            // 转换为领域模型
+            Certificate caCert = new Certificate();
+            caCert.setSerialNumber(x509CACert.getSerialNumber().toString(16));
+            caCert.setSubjectDN(x509CACert.getSubjectX500Principal().getName());
+            caCert.setIssuerDN(x509CACert.getIssuerX500Principal().getName());
+            caCert.setSignatureAlgorithm("SM2");
+            caCert.setPemEncoded(certificateGenerator.toPEM(x509CACert));
+
+            // 与测试脚本保持一致的 CA ID
             CertificateAuthority ca = new CertificateAuthority(
-                "ca-001",
+                "CA001",
                 "RootCA",
                 caCert
             );
 
             caRepository.save(ca);
-            System.out.println("默认CA创建成功: " + ca.getCaName());
+            System.out.println("默认CA创建成功: " + ca.getCaName() + ", DN: " + caCert.getSubjectDN());
         } catch (Exception e) {
-            System.out.println("默认CA可能已存在: " + e.getMessage());
+            System.out.println("默认CA可能已存在或创建失败: " + e.getMessage());
         }
     }
 }

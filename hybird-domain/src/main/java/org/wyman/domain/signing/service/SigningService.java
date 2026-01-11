@@ -43,7 +43,8 @@ public class SigningService {
                                        LocalDateTime notBefore,
                                        LocalDateTime notAfter,
                                        String signatureAlgorithm,
-                                       String kemAlgorithm) {
+                                       String kemAlgorithm,
+                                       org.wyman.domain.signing.valobj.HybridCertificateRequestContext hybridContext) {
         CertificateAuthority ca = caRepository.findByName(caName);
         if (ca == null) {
             throw new RuntimeException("CA不存在: " + caName);
@@ -59,7 +60,8 @@ public class SigningService {
             notAfter,
             signatureAlgorithm,
             kemAlgorithm,
-            keyProvider
+            keyProvider,
+            hybridContext
         );
 
         // 保存CA状态

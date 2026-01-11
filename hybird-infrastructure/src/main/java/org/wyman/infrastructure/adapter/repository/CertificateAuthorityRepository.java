@@ -24,11 +24,26 @@ public class CertificateAuthorityRepository implements ICertificateAuthorityRepo
     @Override
     public void save(CertificateAuthority ca) {
         CertificateAuthorityPO po = toPO(ca);
-        CertificateAuthorityPO existing = certificateAuthorityMapper.selectById(ca.getCaId());
-        if (existing == null) {
-            certificateAuthorityMapper.insert(po);
-        } else {
+
+        // 先按名称查询是否存在
+        CertificateAuthorityPO existingByName = certificateAuthorityMapper.selectAll()
+            .stream()
+            .filter(p -> p.getCaName().equals(ca.getCaName()))
+            .findFirst()
+            .orElse(null);
+
+        if (existingByName != null) {
+            // 如果按名称找到记录,使用该记录的ID进行更新
+            po.setCaId(existingByName.getCaId());
             certificateAuthorityMapper.update(po);
+        } else {
+            // 按ID查询
+            CertificateAuthorityPO existingById = certificateAuthorityMapper.selectById(ca.getCaId());
+            if (existingById == null) {
+                certificateAuthorityMapper.insert(po);
+            } else {
+                certificateAuthorityMapper.update(po);
+            }
         }
     }
 

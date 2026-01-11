@@ -82,7 +82,8 @@ public class CertificateAuthority {
                                        LocalDateTime notAfter,
                                        String signatureAlgorithm,
                                        String kemAlgorithm,
-                                       IPrivateKeyProvider keyProvider) {
+                                       IPrivateKeyProvider keyProvider,
+                                       org.wyman.domain.signing.valobj.HybridCertificateRequestContext hybridContext) {
         try {
             // 获取CA私钥
             java.security.PrivateKey caPrivateKey = keyProvider.getSigningPrivateKey(signatureAlgorithm);
@@ -112,7 +113,8 @@ public class CertificateAuthority {
                 notAfterDate,
                 serialNumber,
                 signatureAlgorithm,
-                "http://crl.example.com/ca.crl"
+                "http://crl.example.com/ca.crl",
+                hybridContext
             );
 
             // 转换为领域模型
@@ -126,6 +128,10 @@ public class CertificateAuthority {
             cert.setSignatureAlgorithm(signatureAlgorithm);
             cert.setCrlDistributionPoint("http://crl.example.com/ca.crl");
             cert.setPemEncoded(certificateGenerator.toPEM(x509Cert));
+
+            if (hybridContext != null && hybridContext.isHybridEnabled()) {
+                cert.setPostQuantumPublicKeyPem(hybridContext.getPqSignaturePublicKeyPem());
+            }
 
             return cert;
         } catch (Exception e) {

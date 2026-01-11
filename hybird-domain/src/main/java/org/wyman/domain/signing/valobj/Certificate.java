@@ -45,14 +45,24 @@ public class Certificate {
     private LocalDateTime notAfter;
 
     /**
-     * 签名算法
+     * 签名算法（经典算法）
      */
     private String signatureAlgorithm;
 
     /**
-     * 证书编码(PEM格式)
+     * 经典证书编码(PEM格式)
      */
     private String pemEncoded;
+
+    /**
+     * 后量子公钥PEM
+     */
+    private String postQuantumPublicKeyPem;
+
+    /**
+     * 混合证书打包(经典证书 + PQ 公钥/签名)
+     */
+    private String hybridBundlePem;
 
     /**
      * CRL分发点
